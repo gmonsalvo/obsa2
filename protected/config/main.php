@@ -63,7 +63,7 @@ return array(
           'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
           ),
          */
-        // uncomment the following to use a MySQL database
+// uncomment the following to use a MySQL database
 
         'db' => array(
             'connectionString' => 'mysql:host=127.0.0.1;port=3306;dbname=obsa2',

@@ -51,7 +51,7 @@
 	<b><?php echo CHtml::encode($data->getAttributeLabel('sucursalId')); ?>:</b>
 	<?php echo CHtml::encode($data->sucursalId); ?>
 	<br />
-
+	<!--
 	<b><?php echo CHtml::encode($data->getAttributeLabel('userStamp')); ?>:</b>
 	<?php echo CHtml::encode($data->userStamp); ?>
 	<br />
@@ -59,13 +59,27 @@
 	<b><?php echo CHtml::encode($data->getAttributeLabel('timeStamp')); ?>:</b>
 	<?php echo CHtml::encode($data->timeStamp); ?>
 	<br />
-
+	-->
 	<b><?php echo CHtml::encode($data->getAttributeLabel('tasaTomador')); ?>:</b>
 	<?php echo CHtml::encode($data->tasaTomador); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('montoMaximoTomador')); ?>:</b>
 	<?php echo CHtml::encode($data->montoMaximoTomador); ?>
+	<br />
+	
+	<b>
+		<?php echo CHtml::encode($data->getAttributeLabel('estrella')); ?>:</b>
+		<?php
+			$valorCadena = 'No';
+			if ($data->estrella == 1)
+				$valorCadena = 'Si';
+			echo CHtml::encode($valorCadena); 
+		?>
+	<br />
+	
+	<b><?php echo CHtml::encode($data->getAttributeLabel('porcentajeSobreInversion')); ?>:</b>
+	<?php echo CHtml::encode($data->porcentajeSobreInversion).'%'; ?>
 	<br />
 
 </div>

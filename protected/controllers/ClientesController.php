@@ -69,6 +69,12 @@ class ClientesController extends Controller {
 
         if (isset($_POST['Clientes'])) {
             $model->attributes = $_POST['Clientes'];
+			
+			if (isset($_POST['Clientes']['estrella']))
+				$model->estrella = $_POST['Clientes']['estrella'];
+			else
+				$model->estrella = 0;
+			
             if ($model->save())
                 $this->redirect(array('view', 'id' => $model->id));
         }
@@ -90,7 +96,15 @@ class ClientesController extends Controller {
         // $this->performAjaxValidation($model);
 
         if (isset($_POST['Clientes'])) {
+        	
             $model->attributes = $_POST['Clientes'];
+			
+			if (isset($_POST['Clientes']['estrella']))
+				$model->estrella = $_POST['Clientes']['estrella'];
+			else
+				$model->estrella = 0;
+			
+			
             if ($model->save())
                 $this->redirect(array('view', 'id' => $model->id));
         }
