@@ -97,6 +97,18 @@ function exportar(){
             );',
 		),
 		array(
+			'header'=>'Inversor Estrella',
+			'name'=>'estrellaBusqueda',
+			'type'=>'raw',
+			'value'=>'($data->estrella == 1)?\'Si\':\'No\'',
+		),
+		array(
+			'header'=>'Porcentaje Sobre Inversion',
+			'name'=>'porcentajeSobreInversionBusqueda',
+			'type'=>'raw',
+			'value'=>'$data->porcentajeSobreInversion.\'%\'',
+		),
+		array(
 			'class'=>'CButtonColumn',
 		),
 	),

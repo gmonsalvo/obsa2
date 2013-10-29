@@ -28,6 +28,9 @@
  * @property Operadores $operador
  * @property Sucursales $sucursal
  * @property OperacionesCheques[] $operacionesCheques
+ * @property string $estrella
+ * @property string $porcentajeSobreInversion
+ *  
  */
 class Clientes extends CustomCActiveRecord {
     /**
@@ -46,6 +49,8 @@ class Clientes extends CustomCActiveRecord {
     private $montoCheques;
     public $cantidadChequesComprados;
     public $montoChequesComprados;
+	public $estrellaBusqueda;
+	public $porcentajeSobreInversionBusqueda;
 
     public static function model($className=__CLASS__) {
         return parent::model($className);
@@ -69,7 +74,7 @@ class Clientes extends CustomCActiveRecord {
             array('localidadId, provinciaId, tipoCliente, operadorId, sucursalId', 'numerical', 'integerOnly' => true),
             array('razonSocial, fijo, celular, direccion, email', 'length', 'max' => 45),
             array('documento', 'length', 'max' => 11),
-            array('tasaInversor, tasaTomador,tasaPesificacionTomador', 'length', 'max' => 5),
+            array('tasaInversor, tasaTomador,tasaPesificacionTomador, porcentajeSobreInversion', 'length', 'max' => 5),
             array('userStamp', 'length', 'max' => 50),
             array('montoMaximoTomador, montoPermitidoDescubierto', 'length', 'max' => 15),
             array('tasaInversor,tasaTomador,tasaPesificacionTomador', 'validateTasas'),
@@ -77,7 +82,7 @@ class Clientes extends CustomCActiveRecord {
             array('razonSocial','unique'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id, razonSocial, fijo, celular, direccion, localidadId, provinciaId, email, documento, tasaInversor, tipoCliente, operadorId, sucursalId, userStamp, timeStamp, tasaTomador, montoMaximoTomador', 'safe', 'on' => 'search'),
+            array('id, razonSocial, fijo, celular, direccion, localidadId, provinciaId, email, documento, tasaInversor, tipoCliente, operadorId, sucursalId, userStamp, timeStamp, tasaTomador, montoMaximoTomador, estrellaBusqueda, porcentajeSobreInversionBusqueda', 'safe', 'on' => 'search'),
         );
     }
 
@@ -145,6 +150,8 @@ class Clientes extends CustomCActiveRecord {
             'timeStamp' => 'Time Stamp',
             'tasaTomador' => 'Tasa Tomador',
             'montoMaximoTomador' => 'Monto Maximo Tomador',
+            'estrella' => 'Inversor Estrella',
+            'porcentajeSobreInversion' => 'Porcentaje Sobre Inversión'
         );
     }
 
@@ -174,6 +181,8 @@ class Clientes extends CustomCActiveRecord {
         $criteria->compare('timeStamp', $this->timeStamp, true);
         $criteria->compare('tasaTomador', $this->tasaTomador, true);
         $criteria->compare('montoMaximoTomador', $this->montoMaximoTomador, true);
+		$criteria->compare('CASE WHEN t.estrella = 1 THEN \'Si\' ELSE \'No\' END',$this->estrellaBusqueda,true);
+		$criteria->compare('CONCAT(t.porcentajeSobreInversion,\'%\')',$this->porcentajeSobreInversionBusqueda,true);
 
         return new CActiveDataProvider($this, array(
                     'criteria' => $criteria,

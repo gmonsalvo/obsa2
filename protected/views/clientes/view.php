@@ -46,6 +46,17 @@ $this->menu=array(
 			'name'=>'sucursal',
 			'value'=>$model->sucursal->nombre,
 		),
+		array(
+	       'label'=>'Inversor Estrella',
+	       'type'=>'raw',
+	       'value'=>($model->estrella == 1)?'Si':'No',
+        ),
+		array(
+	       'label'=>'Porcentaje Sobre Inversion',
+	       'type'=>'raw',
+	       'value'=>$model->porcentajeSobreInversion.'%',
+        ),
+		
 		'tasaTomador',
 		'montoMaximoTomador',
                 'montoPermitidoDescubierto'

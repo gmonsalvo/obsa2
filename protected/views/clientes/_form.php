@@ -125,6 +125,20 @@ if ($model->isNewRecord){
 	</div>
 
 
+	<div class="row">
+        <?php echo $form->labelEx($model,'estrella'); ?>
+        <?php echo $form->checkBox($model,'estrella'); ?>
+        <?php echo $form->error($model,'estrella'); ?>
+    </div>
+
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'porcentajeSobreInversion'); ?>
+		<?php echo $form->textField($model,'porcentajeSobreInversion',array('size'=>6,'maxlength'=>6)); ?>
+		<?php echo $form->error($model,'porcentajeSobreInversion'); ?>
+	</div>
+
+
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Guardar' : 'Guardar Cambios'); ?>
 	</div>
