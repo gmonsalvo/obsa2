@@ -74,6 +74,10 @@ class ClientesController extends Controller {
 				$model->estrella = $_POST['Clientes']['estrella'];
 			else
 				$model->estrella = 0;
+			if (($model->tipoCliente != Clientes::TYPE_INVERSOR) && ($model->tipoCliente != Clientes::TYPE_TOMADOR_E_INVERSOR)) {
+				$model->porcentajeSobreInversion = 0;
+				$model->estrella = 0;
+			}
 			
             if ($model->save())
                 $this->redirect(array('view', 'id' => $model->id));
@@ -103,7 +107,10 @@ class ClientesController extends Controller {
 				$model->estrella = $_POST['Clientes']['estrella'];
 			else
 				$model->estrella = 0;
-			
+			if (($model->tipoCliente != Clientes::TYPE_INVERSOR) && ($model->tipoCliente != Clientes::TYPE_TOMADOR_E_INVERSOR)) {
+				$model->porcentajeSobreInversion = 0;
+				$model->estrella = 0;
+			}
 			
             if ($model->save())
                 $this->redirect(array('view', 'id' => $model->id));
