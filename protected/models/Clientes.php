@@ -71,18 +71,17 @@ class Clientes extends CustomCActiveRecord {
         // will receive user inputs.
         return array(
             array('razonSocial, documento, tipoCliente, tasaTomador,tasaInversor,operadorId, sucursalId, userStamp, timeStamp,direccion,fijo,celular', 'required'),
-            array('localidadId, provinciaId, tipoCliente, operadorId, sucursalId', 'numerical', 'integerOnly' => true),
+            array('localidadId, provinciaId, tipoCliente, operadorId, sucursalId, financiera', 'numerical', 'integerOnly' => true),
             array('razonSocial, fijo, celular, direccion, email', 'length', 'max' => 45),
             array('documento', 'length', 'max' => 11),
-            array('tasaInversor, tasaTomador,tasaPesificacionTomador, porcentajeSobreInversion', 'length', 'max' => 5),
-            array('userStamp', 'length', 'max' => 50),
+            array('tasaInversor, tasaTomador,tasaPesificacionTomador, porcentajeSobreInversion, financiera', 'length', 'max' => 5),
             array('montoMaximoTomador, montoPermitidoDescubierto', 'length', 'max' => 15),
             array('tasaInversor,tasaTomador,tasaPesificacionTomador', 'validateTasas'),
             array('documento','unique'),
             array('razonSocial','unique'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id, razonSocial, fijo, celular, direccion, localidadId, provinciaId, email, documento, tasaInversor, tipoCliente, operadorId, sucursalId, userStamp, timeStamp, tasaTomador, montoMaximoTomador, estrellaBusqueda, porcentajeSobreInversionBusqueda', 'safe', 'on' => 'search'),
+            array('id, razonSocial, fijo, celular, direccion, localidadId, provinciaId, email, documento, tasaInversor, tipoCliente, operadorId, sucursalId, userStamp, timeStamp, tasaTomador, montoMaximoTomador, estrellaBusqueda, porcentajeSobreInversionBusqueda, financiera', 'safe', 'on' => 'search'),
         );
     }
 
@@ -151,7 +150,8 @@ class Clientes extends CustomCActiveRecord {
             'tasaTomador' => 'Tasa Tomador',
             'montoMaximoTomador' => 'Monto Maximo Tomador',
             'estrella' => 'Inversor Estrella',
-            'porcentajeSobreInversion' => 'Porcentaje Sobre Inversión'
+            'porcentajeSobreInversion' => 'Porcentaje Sobre Inversión',
+            'financiera' => 'Es Financiera'
         );
     }
 
@@ -180,6 +180,7 @@ class Clientes extends CustomCActiveRecord {
         $criteria->compare('userStamp', $this->userStamp, true);
         $criteria->compare('timeStamp', $this->timeStamp, true);
         $criteria->compare('tasaTomador', $this->tasaTomador, true);
+        $criteria->compare('financiera', $this->financiera, true);
         $criteria->compare('montoMaximoTomador', $this->montoMaximoTomador, true);
 		$criteria->compare('CASE WHEN t.estrella = 1 THEN \'Si\' ELSE \'No\' END',$this->estrellaBusqueda,true);
 		$criteria->compare('CONCAT(t.porcentajeSobreInversion,\'%\')',$this->porcentajeSobreInversionBusqueda,true);
