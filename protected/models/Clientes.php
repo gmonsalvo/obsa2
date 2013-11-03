@@ -40,6 +40,7 @@ class Clientes extends CustomCActiveRecord {
     const TYPE_TOMADOR=0;
     const TYPE_INVERSOR=1;
     const TYPE_TOMADOR_E_INVERSOR=2;
+	const TYPE_FINANCIERA=3;
 
     private $saldo;
     private $saldoColocaciones;
@@ -334,7 +335,7 @@ class Clientes extends CustomCActiveRecord {
             self::TYPE_TOMADOR_E_INVERSOR => 'Tomador e Inversor',
             self::TYPE_TOMADOR => 'Tomador',
             self::TYPE_INVERSOR => 'Inversor',
-
+			self::TYPE_FINANCIERA => 'Financiera',
         );
     }
 

@@ -1,3 +1,20 @@
+<script>
+	function activarInversor() {
+		
+		if (($("#Clientes_tipoCliente").val() == '1') || ($("#Clientes_tipoCliente").val() == '2')) {
+			$("#Clientes_estrella").removeAttr("disabled");
+			$("#Clientes_porcentajeSobreInversion").removeAttr("disabled");
+		}
+		else {
+			$("#Clientes_estrella").attr("checked", false);
+			$("#Clientes_porcentajeSobreInversion").val("0.00");
+			
+			$("#Clientes_estrella").attr("disabled", "disabled");
+			$("#Clientes_porcentajeSobreInversion").attr("disabled", "disabled");
+		}
+	}
+</script>
+
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
@@ -75,7 +92,7 @@ if ($model->isNewRecord){
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'tipoCliente'); ?>
-		<?php echo $form->dropDownList($model,'tipoCliente', $model->getTypeOptions()); ?>
+		<?php echo $form->dropDownList($model,'tipoCliente', $model->getTypeOptions(), array('onchange' => 'activarInversor()')); ?>
 		<?php /*echo CHtml::dropDownList('tipoCliente','', $model->getTypeOptions(),array(
             'ajax' => array( 'type'=>'POST', //request type
                     'url'=>CController::createUrl('clientes/updatefield'), //url to call.
@@ -146,3 +163,5 @@ if ($model->isNewRecord){
 <?php $this->endWidget(); ?>
 
 </div><!-- form -->
+
+<script>activarInversor();</script>
