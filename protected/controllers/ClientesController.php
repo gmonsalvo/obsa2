@@ -33,7 +33,7 @@ class ClientesController extends Controller {
 //                'expression' => 'Yii::app()->user->checkAccess("usuario")',
 //            ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'admin', 'updatefield', 'delete', 'getCliente', 'getDataProvider', 'buscarRazonSocial', 'getSaldos', 'getInversoresDeCheque', 'ranking', 'saldoNegativo','informePosicion', 'getInforme', 'exportPDF', 'informePDF','exportarRanking','exportarLista','rankingEndosantes','exportarRankingEndosantes','scrollInversores'),
+                'actions' => array('create', 'update', 'admin', 'updatefield', 'delete', 'getCliente', 'getDataProvider', 'buscarRazonSocial', 'getSaldos', 'getInversoresDeCheque', 'ranking', 'saldoNegativo','informePosicion', 'getInforme', 'exportPDF', 'informePDF','exportarRanking','exportarLista','rankingEndosantes','exportarRankingEndosantes','scrollInversores','chequesFinanciera'),
                 'users' => array('@'),
                 //'expression' => 'Yii::app()->user->checkAccess("administrador")',
             ),
@@ -702,6 +702,16 @@ class ClientesController extends Controller {
         }
         print(json_encode($tab));
     }
-
+	
+	public function actionChequesFinanciera() {
+				
+		$modeloOperacionesCheques = new OperacionesCheques;
+		$modeloOperacionesCheques->init();
+		
+		$modeloCheques = new Cheques;
+		$modeloCheques->init();
+		
+		$this->render('chequesFinanciera', array('modeloOperacionesCheques' => $modeloOperacionesCheques, 'modeloCheques' => $modeloCheques));		
+	}
 }
 
