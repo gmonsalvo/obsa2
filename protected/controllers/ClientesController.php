@@ -230,9 +230,6 @@ class ClientesController extends Controller {
             if (isset($_GET['tipo']))
                 $criteria->compare('tipoCliente', $_GET['tipo'], "OR");
 
-            //if(isset($_GET['financiera']))
-            $criteria->compare('financiera', $_GET['financiera'], false);
-
             $criteria->compare('razonSocial', $q, true);
             //$criteria->condition = ' UCASE(razonSocial) like :q';
             $criteria->order = 'razonSocial'; // correct order-by field
@@ -253,7 +250,7 @@ class ClientesController extends Controller {
                 echo CJSON::encode($out);
                 Yii::app()->end();
             } else {
-                echo "La consulta no devolvio resultados " . $_GET['financiera'];
+                echo "La consulta no devolvio resultados ";
             }
         }
     }
