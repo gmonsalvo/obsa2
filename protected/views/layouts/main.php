@@ -57,6 +57,7 @@
                                     array('label' => 'Retiro de Fondos', 'url' => array('/ordenesPago/retirarFondos')),
                                     array('label' => 'Cuentas Corrientes Clientes', 'url' => array('/ctacteClientes/admin')),
                                     array('label' => 'Informe Posicion', 'url' => array('/clientes/informePosicion')),
+                                    array('label' => 'Cheques de Finaciera', 'url' => array('/clientes/chequesFinanciera')),
 
                                 ),
                             ),
