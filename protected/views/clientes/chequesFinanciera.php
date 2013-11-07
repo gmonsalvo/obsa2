@@ -34,6 +34,11 @@ else {
 }
 ?>
 
+
+<?php
+$form=$this->beginWidget('CActiveForm', array('action'=>Yii::app()->createUrl($this->route), 'method'=>'get', ));
+?>
+
 <div class="form">
     <table>
         <tr>
@@ -90,6 +95,7 @@ else {
                     'select' => 'getDatosCliente();',
                     'htmlOptions' => array(
                         'tabindex' => 1),
+                    'onSelectScript'=>CHtml::ajax(array('type'=>'POST', 'url'=>array("cheques/cargarChequesCliente"), 'update'=>'#contenedor')),
                 ));
                 ?>
             </td>
@@ -99,84 +105,70 @@ else {
 
 
 <div class="form">
-    <?php
-    
-    $form = $this->beginWidget('CActiveForm', array(
-        'id' => 'tmp-cheques-form',
-        'enableAjaxValidation' => true,
-            //'action'=>Yii::app()->createUrl("/tmpCheques/addnew"),
-            ));
-    ?>
     <?php echo $form->hiddenField($modeloOperacionesCheques, 'clienteId', array("id"=>"clienteId",'value' => '')); ?>
-    <?php $this->endWidget(); ?>
-    
 	<h2><b>Listado de Cheques</b></h2>
-	
-	<?php $this->widget('zii.widgets.grid.CGridView', array(
-		'id'=>'cheques-grid',
-		'dataProvider'=>$modeloCheques->search(),
-		'filter'=>$modeloCheques,
-	    'selectionChanged' => 'AccionGridCheques',
-		'columns'=>array(
-			array(
-	            'header' => '',
-	            'class' => 'CCheckBoxColumn',
-	        ),
-			array(
-				'name'=>'numeroCheque',
-				'header'=>'Numero Cheque',
-				'value'=>'$data->numeroCheque',
-				'htmlOptions'=>array('style'=>'text-align: right'),
+	<?php	$this->widget('zii.widgets.grid.CGridView', array(
+			'id'=>'cheques-grid',
+			'dataProvider'=>$modeloCheques->searchChequesColocadosPorInversor($clienteId),
+			'filter'=>$modeloCheques,
+		    //'selectionChanged' => 'AccionGridCheques',
+			'columns'=>array(
+				array(
+		            'header' => '',
+		            'class' => 'CCheckBoxColumn',
+		        ),
+				array(
+					'name'=>'numeroCheque',
+					'header'=>'Numero Cheque',
+					'value'=>'$data->numeroCheque',
+					'htmlOptions'=>array('style'=>'text-align: right'),
+				),
+				array(
+					'name'=>'bancoId',
+					'header'=>'Banco',
+					'value'=>'$data->banco->nombre',
+				),
+	            array(
+	                'name' => 'librador_denominacion',
+	                'header' => 'Librador',
+	                'value' => '$data->librador->denominacion',
+	            ),
+				array(
+					'name'=>'montoOrigen',
+					'header'=>'Monto',
+					'value'=>'Yii::app()->numberFormatter->format("#,##0.00",$data->montoOrigen)',
+					'htmlOptions'=>array('style'=>'text-align: right'),
+				),
+				array(
+					'name'=>'fechaPago',
+					'header'=>'Fecha Pago',
+					'value'=>'date("d/m/Y", strToTime($data->fechaPago))',
+					'htmlOptions'=>array('style'=>'text-align: right'),
+				),
+				array(
+					'name'=>'tipoCheque',
+					'header'=>'Destino',
+					'value'=>'$data->getTypeDescription("tipoCheque")',
+				),
+		            	array(
+					'name'=>'operacionCheque',
+					'header'=>'Endosante',
+					'value'=>'$data->operacionCheque->cliente->razonSocial',
+				),
+				array(
+					'name'=>'endosante',
+					'header'=>'2do Endoso',
+					'value'=>'$data->endosante',
+				),
+				array(
+					'name'=>'estado',
+					'header'=>'Estado',
+					'value'=>'$data->getTypeDescription("estado")',
+					'filter'=> Cheques::model()->getTypeOptions("estado"),  
+				),
 			),
-			array(
-				'name'=>'bancoId',
-				'header'=>'Banco',
-				'value'=>'$data->banco->nombre',
-			),
-	//		array(
-	//			'name'=>'libradorId',
-	//			'header'=>'Librador',
-	//			'value'=>'$data->librador->denominacion',
-	//		),
-	                array(
-	                    'name' => 'librador_denominacion',
-	                    'header' => 'Librador',
-	                    'value' => '$data->librador->denominacion',
-	                ),
-			array(
-				'name'=>'montoOrigen',
-				'header'=>'Monto',
-				'value'=>'Yii::app()->numberFormatter->format("#,##0.00",$data->montoOrigen)',
-				'htmlOptions'=>array('style'=>'text-align: right'),
-			),
-			array(
-				'name'=>'fechaPago',
-				'header'=>'Fecha Pago',
-				'value'=>'date("d/m/Y", strToTime($data->fechaPago))',
-				'htmlOptions'=>array('style'=>'text-align: right'),
-			),
-			array(
-				'name'=>'tipoCheque',
-				'header'=>'Destino',
-				'value'=>'$data->getTypeDescription("tipoCheque")',
-			),
-	            	array(
-				'name'=>'operacionCheque',
-				'header'=>'Endosante',
-				'value'=>'$data->operacionCheque->cliente->razonSocial',
-			),
-			array(
-				'name'=>'endosante',
-				'header'=>'2do Endoso',
-				'value'=>'$data->endosante',
-			),
-			array(
-				'name'=>'estado',
-				'header'=>'Estado',
-				'value'=>'$data->getTypeDescription("estado")',
-				'filter'=> Cheques::model()->getTypeOptions("estado"),  
-			),
-		),
-	));
+		));
 	?>
 </div>
+
+<?php $this->endWidget(); ?>
