@@ -33,7 +33,7 @@ class ChequesController extends Controller {
                 			'getMontos', 'adminCheques', 'updateAlta', 'updateBaja', 'updateEntrega', 'updateDevolucion',
                 			'updateDestino', 'viewCheck', 'chequesColocadosEnCliente','getBotonera','updateCampos','viewHistorial',
                             'getCheque','entregaDevolucion','getChequesParaEntregaDevolucion','informeChequesEntregaDevolucionPDF',
-                            'reporteComprados'),
+                            'reporteComprados', 'cargarChequesCliente'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -693,4 +693,18 @@ class ChequesController extends Controller {
         }
     }
 
+	public function actionCargarChequesCliente() {
+		
+		//var_dump($_POST["OperacionesCheques"]["clienteId"]);
+		
+		
+		$modelo = new Cheques;
+		
+		/*
+		$cliente = Clientes::model()->findByPk($_POST['Ctacte']['pkModeloRelacionado']);
+		
+		foreach($cliente->productos as $producto)
+			echo CHtml::tag('option', array('value'=>$producto->id),CHtml::encode($producto->nombre),true);
+		*/
+	}
 }

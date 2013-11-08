@@ -164,5 +164,4 @@ class OperacionesCheques extends CustomCActiveRecord {
     public function getMontoNominalTotal(){
         return $this->montoNominalTotal;
     }
-
 }
