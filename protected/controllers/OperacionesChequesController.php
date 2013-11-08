@@ -244,7 +244,7 @@ class OperacionesChequesController extends Controller {
                         $cheque->tipoCheque = $tcheque['tipoCheque'];
                         $cheque->endosante = $tcheque['endosante'];
                         $cheque->montoNeto = $tcheque['montoNeto'];
-                        $cheque->estado = $tcheque['estado'];
+                        $cheque->estado = Cheques::TYPE_EN_CARTERA_COLOCADO;
                         $cheque->tieneNota = $tcheque['tieneNota'];
                         $cheque->fisico = $tcheque['fisico'];
                         $cheque->dias = $tcheque['dias'];

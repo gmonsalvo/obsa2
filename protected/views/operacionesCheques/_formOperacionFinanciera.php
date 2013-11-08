@@ -501,7 +501,7 @@ $('.search-form form').submit(function(){
                 <?php echo $form->textField($tmpcheque, 'dias', array('size' => 5, 'maxlength' => 100, 'tabindex' => 11));?>
             </td>
             <td><?php echo $form->labelEx($tmpcheque, 'fisico'); ?>
-                <?php echo $form->checkBox($tmpcheque, 'fisico', array('tabindex'=>9, )) ?>
+                <?php echo $form->checkBox($tmpcheque, 'fisico', array('tabindex'=>12, )) ?>
             </td>
             <td ></td>
         </tr>
@@ -572,6 +572,19 @@ $('.search-form form').submit(function(){
         <table>
 
             <tr>
+                <td><?php echo Chtml::label("Total Intereses","")?></td>
+                <td><?php echo Chtml::label("Total Gastos de Pesificacion","")?></td>
+                <td><?php echo $form->labelEx($model, 'montoNetoTotal'); ?></td>
+                <td><?php echo Chtml::label("Total Monto Nominal","")?></td>
+            </tr>
+            <tr>
+                <td><?php echo Chtml::textField("totalIntereses",Utilities::MoneyFormat($model->montoIntereses),array("readonly"=>"readonly",'size' => 15,'id'=>'totalIntereses'))?></td>
+                <td><?php echo Chtml::textField("totalPesificacion",Utilities::MoneyFormat($model->montoPesificacion),array("readonly"=>"readonly",'size' => 15,'id'=>'totalPesificacion'))?></td>
+                <td><?php echo $form->textField($model, 'montoNetoTotal', array('size' => 15, 'maxlength' => 15, 'readonly' => 'readonly','value'=>Utilities::MoneyFormat($model->montoNetoTotal))); ?></td>
+                <td><?php echo Chtml::textField("montoNominalTotal",Utilities::MoneyFormat($model->montoNominalTotal),array("readonly"=>"readonly",'size' => 15,'id'=>'montoNominalTotal'))?></td>
+            </tr>
+
+            <tr>
                 <td> Inversores
                     <?php $this->widget('zii.widgets.grid.CGridView', array(
                         'id'=>'clientes-estrella-grid',
@@ -591,19 +604,6 @@ $('.search-form form').submit(function(){
                     )); ?>
                 </td>
                 <td colspan="3"></td>
-            </tr>
-
-            <tr>
-                <td><?php echo Chtml::label("Total Intereses","")?></td>
-                <td><?php echo Chtml::label("Total Gastos de Pesificacion","")?></td>
-                <td><?php echo $form->labelEx($model, 'montoNetoTotal'); ?></td>
-                <td><?php echo Chtml::label("Total Monto Nominal","")?></td>
-            </tr>
-            <tr>
-                <td><?php echo Chtml::textField("totalIntereses",Utilities::MoneyFormat($model->montoIntereses),array("readonly"=>"readonly",'size' => 15,'id'=>'totalIntereses'))?></td>
-                <td><?php echo Chtml::textField("totalPesificacion",Utilities::MoneyFormat($model->montoPesificacion),array("readonly"=>"readonly",'size' => 15,'id'=>'totalPesificacion'))?></td>
-                <td><?php echo $form->textField($model, 'montoNetoTotal', array('size' => 15, 'maxlength' => 15, 'readonly' => 'readonly','value'=>Utilities::MoneyFormat($model->montoNetoTotal))); ?></td>
-                <td><?php echo Chtml::textField("montoNominalTotal",Utilities::MoneyFormat($model->montoNominalTotal),array("readonly"=>"readonly",'size' => 15,'id'=>'montoNominalTotal'))?></td>
             </tr>
         </table>
 
