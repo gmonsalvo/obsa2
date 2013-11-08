@@ -494,14 +494,14 @@ $('.search-form form').submit(function(){
             <td colspan="2"><?php echo $form->textField($tmpcheque, 'endosante', array('size' => 35, 'maxlength' => 100, 'tabindex' => 8)); ?></td>
         </tr>
         <tr>
-            <td><?php echo $form->labelEx($tmpcheque, 'tieneNota'); ?>
-                <?php echo $form->checkBox($tmpcheque, 'tieneNota') ?>
+            <td><?php echo $form->labelEx($tmpcheque, 'tieneNota' ); ?>
+                <?php echo $form->checkBox($tmpcheque, 'tieneNota', array('tabindex'=>9, )) ?>
             </td>
             <td><?php echo $form->labelEx($tmpcheque, 'dias'); ?>
                 <?php echo $form->textField($tmpcheque, 'dias', array('size' => 5, 'maxlength' => 100, 'tabindex' => 11));?>
             </td>
             <td><?php echo $form->labelEx($tmpcheque, 'fisico'); ?>
-                <?php echo $form->checkBox($tmpcheque, 'fisico') ?>
+                <?php echo $form->checkBox($tmpcheque, 'fisico', array('tabindex'=>9, )) ?>
             </td>
             <td ></td>
         </tr>
@@ -516,64 +516,6 @@ $('.search-form form').submit(function(){
             <td colspan="2"></td>
         </tr>
 
-        <tr>
-            <td> Inversores
-                <?php $this->widget('zii.widgets.grid.CGridView', array(
-                    'id'=>'clientes-estrella-grid',
-                    'dataProvider'=>$inversores,
-                    'columns'=>array(
-                        array(
-                                'name' => 'clienteId',
-                                'header' => 'Cliente',
-                                'value' => '$data->razonSocial',
-                        ),
-                        array(
-                                'name' => 'clienteId',
-                                'header' => '%',
-                                'value' => '$data->porcentajeSobreInversion',
-                        ),
-                    ),
-                )); ?>
-            </td>
-            <td colspan="3"></td>
-        </tr>
-        
-        <tr class="resultado">
-            <td><?php
-                echo CHtml::ajaxButton('Calcular Monto Neto', CHtml::normalizeUrl(array('tmpCheques/calcularMontoNeto', 'render' => false)), array(
-                    'type' => 'POST',
-                    'data' => array('tasaDescuento' => 'js:$("#TmpCheques_tasaDescuento").val()',
-                        'clearing' => 'js:$("#TmpCheques_clearing").val()',
-                        'pesificacion' => 'js:$("#TmpCheques_pesificacion").val()',
-                        'montoOrigen' => 'js:$("#montoOrigen").val()',
-                        'fechaPago' => 'js:$("#TmpCheques_fechaPago").val()',
-                        'fechaOperacion' => 'js:$("#OperacionesCheques_fecha").val()',
-                    ),
-                    'dataType' => 'text',
-                    'beforeSend' => 'js:function(){
-					if($("#TmpCheques_tasaDescuento").val()=="" || $("#TmpCheques_clearing").val()=="" || $("#montoOrigen").val()=="" || $("#TmpCheques_fechaPago").val()==""){
-						alert("Algunos de los valores requeridos para calcular el monto neto no fueron ingresados. Por favor ingreselos");
-						return false;
-					}
-
-					return true;
-				}',
-                    'success' => 'js:function(data){
-                        var datos = jQuery.parseJSON(data);
-                        if(datos.estado!=-1){
-        					$("#TmpCheques_montoNeto").val(datos.montoNeto);
-        					$("#TmpCheques_descValor").val(datos.descuentoTasa);
-        					$("#TmpCheques_pesificValor").val(datos.descuentoPesific);
-        					var tdtabla=$(".formulario").find(".resultado").find(".tablaresultado");
-        					tdtabla.html("<table border=1 class=\"ui-widget ui-widget-content\"><thead class=\"ui-widget-header \"><tr><th>Monto Neto</th><th>Gastos por Tasa Descuento</th><th>Gastos por Pesificacion</th></tr></thead><tbody><tr><td>"+datos.montoNeto+"<td>"+datos.descuentoTasa+"</td><td>"+datos.descuentoPesific+"</td></tr></tbody></table>");
-    					} else
-                            alert("El cheque a ingresar ya expiro");
-                    }',
-                ));
-                ?>
-            </td>
-            <td class='tablaresultado' colspan=3><?php echo $form->error($tmpcheque, 'montoNeto'); ?></td>
-        </tr>
     </table>
 
     <?php
@@ -628,6 +570,29 @@ $('.search-form form').submit(function(){
         <div id="errores"><?php echo $form->errorSummary($model); ?></div>
 
         <table>
+
+            <tr>
+                <td> Inversores
+                    <?php $this->widget('zii.widgets.grid.CGridView', array(
+                        'id'=>'clientes-estrella-grid',
+                        'dataProvider'=>$inversores,
+                        'columns'=>array(
+                            array(
+                                    'name' => 'clienteId',
+                                    'header' => 'Cliente',
+                                    'value' => '$data->razonSocial',
+                            ),
+                            array(
+                                    'name' => 'clienteId',
+                                    'header' => '%',
+                                    'value' => '$data->porcentajeSobreInversion',
+                            ),
+                        ),
+                    )); ?>
+                </td>
+                <td colspan="3"></td>
+            </tr>
+
             <tr>
                 <td><?php echo Chtml::label("Total Intereses","")?></td>
                 <td><?php echo Chtml::label("Total Gastos de Pesificacion","")?></td>
