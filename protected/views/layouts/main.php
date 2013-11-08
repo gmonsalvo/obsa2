@@ -64,6 +64,7 @@
                             array('label' => 'Operatoria Cheques', 'url' => array(''),
                                 'items' => array(
                                     array('label' => 'Compra de cheques corrientes y a fecha.', 'url' => array('/operacionesCheques/nuevaOperacion')),
+                                    array('label' => 'Compra y Colocación.', 'url' => array('/operacionesCheques/nuevaOperacionFinanciera')),
                                     array('label' => 'Listado de Operaciones de Compra', 'url' => array('/operacionesCheques/admin')),
                                     array('label' => 'Presupuestos', 'url' => array('/presupuestoOperacionesCheques/admin')),
                                     array('label' => 'Colocaciones de Cheques', 'url' => array('/colocaciones/create')),
