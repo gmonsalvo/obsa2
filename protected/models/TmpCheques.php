@@ -69,7 +69,7 @@ class TmpCheques extends CustomCActiveRecord {
         // will receive user inputs.
         return array(
             array('tasaDescuento, libradorId, bancoId, montoOrigen, fechaPago, estado, userStamp, timeStamp, sucursalId, numeroCheque, tipoCheque', 'required'),
-            array('clearing, bancoId, tipoCheque, estado, sucursalId, numeroCheque, tieneNota, presupuesto', 'numerical', 'integerOnly' => true),
+            array('clearing, bancoId, tipoCheque, estado, sucursalId, numeroCheque, tieneNota, presupuesto, dias, tasa, tipoTasa, fisico', 'numerical', 'integerOnly' => true),
             array('montoOrigen,pesificacion', 'numerical'),
             array('libradorId', 'numerical', 'min'=>1),
             array('tasaDescuento, pesificacion', 'length', 'max' => 5),
@@ -124,6 +124,10 @@ class TmpCheques extends CustomCActiveRecord {
             'timeStamp' => 'Time Stamp',
             'sucursalId' => 'Sucursal',
             'tieneNota' => 'Tiene Nota',
+            'dias' => 'Días',
+            'tasa' => 'Tasa',
+            'tipoTasa' => 'Tipo Tasa',
+            'fisico' => 'Físico',
         );
     }
 

@@ -230,6 +230,23 @@ class Clientes extends CustomCActiveRecord {
         return $dataProvider;
     }
 
+    public function searchInversoresEstrellaParaColocacion($filtrarSaldoNegativo = false) {
+        // Warning: Please modify the following code to remove attributes that
+        // should not be searched.
+
+        $criteria = new CDbCriteria;
+        $criteria->condition = "(t.tipoCliente=" . self::TYPE_INVERSOR . 
+                        " OR t.tipoCliente=" . self::TYPE_TOMADOR_E_INVERSOR . ")" .
+                        " AND t.estrella = '1' ";
+        $criteria->order = ' t.tasaInversor ASC';
+
+        $dataProvider = new CActiveDataProvider($this, array(
+                    'criteria' => $criteria
+                ));
+
+        return $dataProvider;
+    }
+
     public function searchInversoresParaColocacion2() {
         // Warning: Please modify the following code to remove attributes that
         // should not be searched.
