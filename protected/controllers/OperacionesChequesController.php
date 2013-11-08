@@ -29,7 +29,8 @@ class OperacionesChequesController extends Controller {
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'admin', 'nuevaOperacion', 'generatePDF', 'ResumenPDF','imprimirPDF','anularOperacion'),
+                'actions' => array('create', 'update', 'admin', 'nuevaOperacion', 'nuevaOperacionFinanciera',
+                                 'generatePDF', 'ResumenPDF','imprimirPDF','anularOperacion'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -205,6 +206,171 @@ class OperacionesChequesController extends Controller {
         $model->init();
         $this->render('crear', array(
             'model' => $model, 'tmpcheque' => $tmpcheque
+        ));
+    }
+
+    public function actionNuevaOperacionFinanciera() {
+        $model = new OperacionesCheques;
+        $tmpcheque = new TmpCheques;
+        $tmpcheque->tasaDescuento = 0;
+        $inversores = Clientes::model()->searchInversoresEstrellaParaColocacion(false);
+        // Uncomment the following line if AJAX validation is needed
+        // $this->performAjaxValidation($model);
+        if (isset($_POST['OperacionesCheques'])) {
+            $model->attributes = $_POST['OperacionesCheques'];
+            $model->estado = OperacionesCheques::ESTADO_A_PAGAR;
+            $model->montoNetoTotal = Utilities::Unformat($model->montoNetoTotal);
+            $model->fecha = Utilities::MysqlDateFormat($model->fecha);
+            $connection = Yii::app()->db;
+            $command = Yii::app()->db->createCommand();
+            $tmpcheques = $command->select('*')->from('tmpCheques')->where('DATE(timeStamp)=:fechahoy AND userStamp=:username AND presupuesto=0', array(':fechahoy' => Date('Y-m-d'), ':username' => Yii::app()->user->model->username))->queryAll();
+            $transaction = $connection->beginTransaction();
+            try {
+
+                if ($model->save() && count($tmpcheques) > 0) { //si valida OperacionCheque y ademas cargo algun TmpCheque
+                    $operacionChequeId = $model->id;
+                    $tasaPromedioPesificacion=Yii::app()->user->model->sucursal->tasaPromedioPesificacion;
+                    foreach ($tmpcheques as $tcheque) {
+                        $cheque = new Cheques();
+                        $cheque->operacionChequeId = $operacionChequeId;
+                        $cheque->tasaDescuento = $tcheque['tasaDescuento'];
+                        $cheque->clearing = $tcheque['clearing'];
+                        $cheque->pesificacion = $tcheque['pesificacion'];
+                        $cheque->numeroCheque = $tcheque['numeroCheque'];
+                        $cheque->libradorId = $tcheque['libradorId'];
+                        $cheque->bancoId = $tcheque['bancoId'];
+                        $cheque->montoOrigen = $tcheque['montoOrigen'];
+                        $cheque->fechaPago = $tcheque['fechaPago'];
+                        $cheque->tipoCheque = $tcheque['tipoCheque'];
+                        $cheque->endosante = $tcheque['endosante'];
+                        $cheque->montoNeto = $tcheque['montoNeto'];
+                        $cheque->estado = $tcheque['estado'];
+                        $cheque->tieneNota = $tcheque['tieneNota'];
+                        $cheque->fisico = $tcheque['fisico'];
+                        $cheque->dias = $tcheque['dias'];
+                        $cheque->tasa = $tcheque['tasa'];
+                        $cheque->tipoTasa = $tcheque['tipoTasa'];
+                        $cheque->pesificacion = 0;
+                        $cheque->clearing = 0;
+
+                        if (!$cheque->save()) {
+                            $transaction->rollBack();
+                            Yii::app()->user->setFlash('error', var_dump($cheque->getErrors()));
+                            $this->render('crear', array(
+                                'model' => $model, 'tmpcheque' => $tmpcheque
+                            ));
+                        }
+
+                        //Colocacion
+                        
+                        $colocacion = new Colocaciones;
+                        $colocacion->fecha = Date("Y-m-d h:m:s");
+                        $colocacion->chequeId = $cheque->id;
+                        $colocacion->montoTotal = $cheque->montoOrigen;
+                        $colocacion->sucursalId = Yii::app()->user->model->sucursalId;
+                        $colocacion->userStamp = Yii::app()->user->model->username;
+                        $colocacion->timeStamp = Date("Y-m-d h:m:s");
+                        $colocacion->estado = Colocaciones::ESTADO_ACTIVA;
+                        $colocacion->diasColocados = $cheque->dias;
+                        //$colocacion->colocacionAnteriorId
+                        if(!$colocacion->save()) {
+                            throw new Exception("Error al efectuar movimiento de colocacion " . var_dump($colocacion->getErrors()), 1); 
+                        }
+                        $invs = $inversores->getData();
+                        foreach ($invs as $inversor) {
+                            $detalleColocacion = new DetalleColocaciones();
+                            $detalleColocacion->colocacionId = $colocacion->id;
+                            $detalleColocacion->clienteId = $inversor->id;
+                            $detalleColocacion->monto = Utilities::truncateFloat( ($cheque->montoOrigen * $inversor->porcentajeSobreInversion)/100 , 2);
+                            $detalleColocacion->tasa = Utilities::truncateFloat( $inversor->tasaInversor , 2);
+                            if (!$detalleColocacion->save()) {
+                                throw new Exception("Error al efectuar movimiento en detalle de colocacion", 1); 
+                            }
+                        }
+
+
+                         ##Acredito la prevision por la pesificacion usando la tasa promedio
+                    
+                        $previsionPesificacion = $cheque->montoOrigen*$tasaPromedioPesificacion/100;
+                        $gastoPesificacion = $cheque->montoOrigen*$cheque->pesificacion/100;
+                        $diferenciaPesificacion = $gastoPesificacion - $previsionPesificacion;
+
+                        $flujoFondos = new FlujoFondos;
+                        $flujoFondos->cuentaId = '11'; // fondo de inversores
+                        $flujoFondos->conceptoId = 24; // credito en fondo inversores
+                        $flujoFondos->descripcion = "Prevision de pesificacion para cheque nro. ".$cheque->numeroCheque;
+                        $flujoFondos->tipoFlujoFondos = FlujoFondos::TYPE_CREDITO;
+
+                        $flujoFondos->monto = $previsionPesificacion;
+                        $flujoFondos->saldoAcumulado = $flujoFondos->getSaldoAcumuladoActual() + $flujoFondos->monto; //tipo mov es credito
+                        $flujoFondos->fecha = Date("d/m/Y");
+                        $flujoFondos->origen = 'Cheques';
+                        $flujoFondos->identificadorOrigen = $cheque->id;
+                        $flujoFondos->sucursalId = Yii::app()->user->model->sucursalId;
+                        $flujoFondos->userStamp = Yii::app()->user->model->username;
+                        $flujoFondos->timeStamp = Date("Y-m-d h:m:s");
+                        $flujoFondos->save();
+                        if(!$flujoFondos->save()) {
+                            throw new Exception("Error al efectuar movimiento en fondo de inversores", 1); 
+                        }
+
+                        $flujoFondos = new FlujoFondos;
+                        $flujoFondos->cuentaId = '12'; // diferencia pesificaciones
+                        $flujoFondos->conceptoId = 18; 
+                        $flujoFondos->descripcion = "Diferencia de la pesificacion por la compra del cheque nro. ".$cheque->numeroCheque;
+                        $flujoFondos->tipoFlujoFondos = FlujoFondos::TYPE_CREDITO;
+
+                        $flujoFondos->monto = $diferenciaPesificacion;
+                        $flujoFondos->saldoAcumulado = $flujoFondos->getSaldoAcumuladoActual() + $flujoFondos->monto; //tipo mov es credito
+                        $flujoFondos->fecha = Date("d/m/Y");
+                        $flujoFondos->origen = 'Cheques';
+                        $flujoFondos->identificadorOrigen = $cheque->id;
+                        $flujoFondos->sucursalId = Yii::app()->user->model->sucursalId;
+                        $flujoFondos->userStamp = Yii::app()->user->model->username;
+                        $flujoFondos->timeStamp = Date("Y-m-d h:m:s");
+                        $flujoFondos->save();
+                        if(!$flujoFondos->save()) {
+                            throw new Exception("Error al efectuar movimiento en fondo de inversores", 1); 
+                        }
+                    }
+                    //borro los registros temporales
+                    $command->delete('tmpCheques', 'DATE(timeStamp)=:fechahoy AND userStamp=:username AND presupuesto=0', array(':fechahoy' => Date('Y-m-d'), ':username' => Yii::app()->user->model->username));
+                    
+                    $ctacteCliente = new CtacteClientes();
+                    $ctacteCliente->tipoMov = CtacteClientes::TYPE_CREDITO;
+                    $ctacteCliente->conceptoId = 12;
+                    $ctacteCliente->clienteId = $model->clienteId;
+                    $ctacteCliente->productoId = 1;
+                    $ctacteCliente->descripcion = "Credito por la compra de cheques";
+
+                    $ctacteCliente->monto = $model->montoNetoTotal;
+                    $ctacteCliente->saldoAcumulado=$ctacteCliente->getSaldoAcumuladoActual()+$ctacteCliente->monto;
+                    $ctacteCliente->fecha = date("Y-m-d");
+                    $ctacteCliente->origen = "OperacionesCheques";
+                    $ctacteCliente->identificadorOrigen = $model->id;
+
+                    if(!$ctacteCliente->save()){
+                        throw new Exception("Error al efectuar movimiento en ctacte del cliente", 1);                        
+                    }
+
+
+                    $transaction->commit();
+                    Yii::app()->user->setFlash('success', 'Movimiento realizado con exito');
+                    $this->redirect(array('view', 'id' => $model->id));
+                } else {
+                    if (count($tmpcheques) == 0) {
+                        $tmpcheque->addError('error', 'Debe ingresar al menos un cheque para cerrar la Operacion');
+                        $transaction->rollBack();
+                    }
+                }
+            } catch (Exception $e) { // an exception is raised if a query fails
+                $transaction->rollBack();
+                Yii::app()->user->setFlash('error', $e->getMessage());
+            }
+        }
+        $model->init();
+        $this->render('crearOpFinanciera', array(
+            'model' => $model, 'tmpcheque' => $tmpcheque, 'inversores' => $inversores, 
         ));
     }
 
@@ -384,6 +550,9 @@ class OperacionesChequesController extends Controller {
 			</tr>';
         $gastosPesificacion = 0;
         $descuento = 0;
+        $montoOrigenTotal = 0;
+        $interesTotal= 0;
+        $gastosTotal = 0;
         foreach ($model->cheques as $cheque) {
             $diasAlVencimiento=Utilities::RestarFechas(Date("d-m-Y"),Utilities::ViewDateFormat($cheque->fechaPago))+$cheque->clearing;
             $gastosPesificacion+=($cheque->pesificacion / 100) * $cheque->montoOrigen;
@@ -396,7 +565,7 @@ class OperacionesChequesController extends Controller {
                     <td align='center'>" . $cheque->clearing."</td>
                     <td align='center'>" . Utilities::MoneyFormat($cheque->montoOrigen - $cheque->montoNeto - ($cheque->pesificacion / 100) * $cheque->montoOrigen) . "</td>
                     <td align='center'>" . Utilities::truncateFloat($cheque->pesificacion, 2)."%</td>
-                    <td align='center'>" . Utilities::MoneyFormat(Utilities::truncateFloat(($cheque->pesificacion / 100) * $cheque->montoOrigen)) . "</td>
+                    <td align='center'>" . Utilities::MoneyFormat( Utilities::truncateFloat(($cheque->pesificacion / 100) * $cheque->montoOrigen,2)) . "</td>
                     <td align='center'>" . Utilities::MoneyFormat($cheque->montoNeto) . "</td>
 					</tr>";
             ///hacemos las sumas        

@@ -250,7 +250,7 @@ class ClientesController extends Controller {
                 echo CJSON::encode($out);
                 Yii::app()->end();
             } else {
-                echo "La consulta no devolvio resultados";
+                echo "La consulta no devolvio resultados ";
             }
         }
     }

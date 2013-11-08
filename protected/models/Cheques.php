@@ -547,6 +547,4 @@ class Cheques extends CustomCActiveRecord {
         return $chequesColocados; 
 
     }
-
-  
 }
