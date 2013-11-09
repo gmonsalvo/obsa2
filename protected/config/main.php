@@ -70,6 +70,7 @@ return array(
             'emulatePrepare' => true,
             'username' => 'root',
             'password' => 'eLaStIx.2oo7',
+            //'password' => 'montreal',
             'charset' => 'utf8',
              'enableProfiling' => true,
             'enableParamLogging' => true,
