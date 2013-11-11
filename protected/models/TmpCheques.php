@@ -69,8 +69,8 @@ class TmpCheques extends CustomCActiveRecord {
         // will receive user inputs.
         return array(
             array('tasaDescuento, libradorId, bancoId, montoOrigen, fechaPago, estado, userStamp, timeStamp, sucursalId, numeroCheque, tipoCheque', 'required'),
-            array('clearing, bancoId, tipoCheque, estado, sucursalId, numeroCheque, tieneNota, presupuesto, dias, tasa, tipoTasa, fisico', 'numerical', 'integerOnly' => true),
-            array('montoOrigen,pesificacion', 'numerical'),
+            array('clearing, bancoId, tipoCheque, estado, sucursalId, numeroCheque, tieneNota, presupuesto, dias, tipoTasa, fisico', 'numerical', 'integerOnly' => true),
+            array('montoOrigen,pesificacion, tasa', 'numerical'),
             array('libradorId', 'numerical', 'min'=>1),
             array('tasaDescuento, pesificacion', 'length', 'max' => 5),
             array('numeroCheque', 'length', 'max' => 45),
