@@ -391,7 +391,7 @@ $('.search-form form').submit(function(){
             ));
     ?>
 
-    <p class="note">Campos con <span class="required">*</span> son obligatorios.</p>
+    <p class="note">Campos    con <span class="required">*</span> son obligatorios.</p>
 
     <div id="erroresCheque"><?php echo $form->errorSummary($tmpcheque); ?></div>
 
