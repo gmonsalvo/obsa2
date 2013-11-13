@@ -709,7 +709,7 @@ class ChequesController extends Controller {
 	}
 	
 	public function actionChequesFinanciera() {
-				
+		
 		$modeloOperacionesCheques = new OperacionesCheques;
 		$modeloOperacionesCheques->init();
 		
@@ -720,7 +720,7 @@ class ChequesController extends Controller {
             $model->attributes = $_GET['Cheques'];
 		/*
 		if (isset($_GET['ajax'])) {
-			echo "PEPE";
+			var_dump($_GET);
 			exit;
 		}*/
 		

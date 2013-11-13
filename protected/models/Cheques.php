@@ -549,19 +549,34 @@ class Cheques extends CustomCActiveRecord {
 
     }
 
-    public function searchByFechaAndEstado2() {
+    public function searchByFechaClienteAndEstado() {
     	
 		$this->fechaPago = Utilities::MysqlDateFormat($this->fechaPago);
 		
         $criteria = new CDbCriteria;
-		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "'";
+		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "' AND operacionesCheques.clienteId = '".$this->clienteId."'";
+		$criteria->join = 'JOIN operacionesCheques ON operacionesCheques.id = t.operacionChequeId';
 		$criteria->condition = "t.fechaPago = '".$this->fechaPago."'" .$query;
         $criteria->order = 't.fechaPago ASC';		
-        //$criteria->params = array(':start_day' => $fechaIni, ':end_day' => $fechaFin);
 
         $dataProvider = new CActiveDataProvider(get_class($this), array(
                     'criteria' => $criteria,
                 ));
         return $dataProvider;
     }
+	
+	public function obtenerTotal() {
+		
+		$this->fechaPago = Utilities::MysqlDateFormat($this->fechaPago);
+		
+        $criteria = new CDbCriteria;
+		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "' AND operacionesCheques.clienteId = '".$this->clienteId."'";
+		$criteria->select = 'sum(t.montoNeto) AS total';
+		$criteria->join = 'JOIN operacionesCheques ON operacionesCheques.id = t.operacionChequeId';
+		$criteria->condition = "t.fechaPago = '".$this->fechaPago."'" .$query;
+
+		$resultado = Cheques::model()->find($criteria);
+		
+		return $resultado->total;
+	}	
 }

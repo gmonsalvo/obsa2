@@ -7,6 +7,14 @@ else if (isset($_GET['Cheques']['fechaPago']))
 else
 	$modelo->fechaPago = Date('d/m/Y');
 
+if (isset($_POST['OperacionesCheques']['clienteId']))
+    $modelo->clienteId = $_POST['OperacionesCheques']['clienteId'];
+else if (isset($_GET['OperacionesCheques']['clienteId']))
+	$modelo->clienteId = $_GET['OperacionesCheques']['clienteId'];
+else
+	$modelo->clienteId = '';
+
+
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
 	$('.search-form').toggle();
@@ -24,16 +32,21 @@ $('.search-form form').submit(function(){
 <h1>Listado de Cheques Comprados a Financiera</h1>
 
 <div class="search-form">
-<?php $this->renderPartial('_searchClientes',array(
+<?php $this->renderPartial('_searchChequesClientes',array(
 	'modelo'=>$modelo, 'modeloOperacionesCheques'=>$modeloOperacionesCheques
 )); ?>
 </div><!-- search-form -->
 
+<div class="row">
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'cheques-grid',
-	'dataProvider'=>$modelo->searchByFechaAndEstado2(),
-	'filter'=>$modelo,
+	'dataProvider'=>$modelo->searchByFechaClienteAndEstado(),
+	//'filter'=>$modelo,
 	'columns'=>array(
+		array(
+            'header' => '',
+            'class' => 'CCheckBoxColumn',
+        ),		
 		'numeroCheque',
 		array(
 			'name'=>'bancoId',
@@ -53,7 +66,7 @@ $('.search-form form').submit(function(){
 	    ),
         array(
             'name' => 'fechaPago',
-            'header' => 'Fecha Vto.',
+            'header' => 'Fecha Pago',
             'value' => 'Utilities::viewDateFormat($data->fechaPago)',
         ),
          array(
@@ -61,6 +74,17 @@ $('.search-form form').submit(function(){
             'header' => 'Importe',
             'value' => '"$ ".number_format($data->montoOrigen,2)',
         ),
-
+         array(
+            'name' => 'montoNeto',
+            'header' => 'Importe Neto',
+            'value' => '"$ ".number_format($data->montoNeto,2)',
+        ),
 	),
 )); ?>
+</div>
+<div class="row buttons" style='text-align: right;'>
+	<?php echo CHtml::submitButton('Acreditar'); ?>
+	<?php echo CHtml::label('Monto Total', 'lblMontoTotal', array('')); ?>
+	<?php echo CHtml::textField('montoTotal',$modelo->obtenerTotal()); ?>
+</div>
+
