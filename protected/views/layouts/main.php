@@ -57,8 +57,6 @@
                                     array('label' => 'Retiro de Fondos', 'url' => array('/ordenesPago/retirarFondos')),
                                     array('label' => 'Cuentas Corrientes Clientes', 'url' => array('/ctacteClientes/admin')),
                                     array('label' => 'Informe Posicion', 'url' => array('/clientes/informePosicion')),
-                                    array('label' => 'Cheques de Finaciera', 'url' => array('/clientes/chequesFinanciera')),
-
                                 ),
                             ),
                             array('label' => 'Operatoria Cheques', 'url' => array(''),
@@ -74,6 +72,7 @@
                                     array('label' => 'Listado de Cheques', 'url' => array('/cheques/adminCheques')),
                                     array('label' => 'Entrega/Devolucion de Cheques', 'url' => array('/cheques/entregaDevolucion')),
                                     array('label' => 'Comisiones', 'url' => array('/comisionesOperadores/admin')),
+                                    array('label' => 'Cheques de Finaciera', 'url' => array('/cheques/chequesFinanciera')),
 
                                 ),
                             ),

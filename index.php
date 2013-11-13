@@ -1,8 +1,12 @@
 <?php
 
 // change the following paths if necessary
-$yii=dirname(__FILE__).'/yii/framework/yii.php';
+//<<<<<<< HEAD
+$yii=dirname(__FILE__).'/../yii/framework/yii.php';
+//=======
+//$yii=dirname(__FILE__).'/yii/framework/yii.php';
 //$yii='/var/wwww/yii/framework/yii.php';
+//>>>>>>> 6cf5ec7ff543d3d76fce34d102faccb5f4bb404a
 
 $config=dirname(__FILE__).'/protected/config/main.php';
 

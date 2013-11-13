@@ -33,7 +33,7 @@ class ChequesController extends Controller {
                 			'getMontos', 'adminCheques', 'updateAlta', 'updateBaja', 'updateEntrega', 'updateDevolucion',
                 			'updateDestino', 'viewCheck', 'chequesColocadosEnCliente','getBotonera','updateCampos','viewHistorial',
                             'getCheque','entregaDevolucion','getChequesParaEntregaDevolucion','informeChequesEntregaDevolucionPDF',
-                            'reporteComprados', 'cargarChequesCliente'),
+                            'reporteComprados', 'cargarChequesCliente', 'chequesFinanciera'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -706,5 +706,24 @@ class ChequesController extends Controller {
 		foreach($cliente->productos as $producto)
 			echo CHtml::tag('option', array('value'=>$producto->id),CHtml::encode($producto->nombre),true);
 		*/
+	}
+	
+	public function actionChequesFinanciera() {
+				
+		$modeloOperacionesCheques = new OperacionesCheques;
+		$modeloOperacionesCheques->init();
+		
+		$modelo = new Cheques('search');
+		$modelo->unsetAttributes();
+		
+        if (isset($_GET['Cheques']))
+            $model->attributes = $_GET['Cheques'];
+		/*
+		if (isset($_GET['ajax'])) {
+			echo "PEPE";
+			exit;
+		}*/
+		
+		$this->render('chequesFinanciera', array('modeloOperacionesCheques' => $modeloOperacionesCheques, 'modelo' => $modelo));
 	}
 }

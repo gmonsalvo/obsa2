@@ -60,6 +60,7 @@ class Cheques extends CustomCActiveRecord {
     private $porcentaje;
     //suma de los montos de cheques
     public $total;
+	public $clienteId;
 
     public static function model($className=__CLASS__) {
         return parent::model($className);
@@ -465,7 +466,7 @@ class Cheques extends CustomCActiveRecord {
             }
         }
         else {
-            $query = "t.estado='" . $estado . "'";
+            $query = " AND t.estado='" . $estado . "'";
         }
         if(!empty($chequesId)){
             $query.=" AND t.id NOT IN (";
@@ -546,5 +547,21 @@ class Cheques extends CustomCActiveRecord {
         $chequesColocados->data = $cheques;
         return $chequesColocados; 
 
+    }
+
+    public function searchByFechaAndEstado2() {
+    	
+		$this->fechaPago = Utilities::MysqlDateFormat($this->fechaPago);
+		
+        $criteria = new CDbCriteria;
+		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "'";
+		$criteria->condition = "t.fechaPago = '".$this->fechaPago."'" .$query;
+        $criteria->order = 't.fechaPago ASC';		
+        //$criteria->params = array(':start_day' => $fechaIni, ':end_day' => $fechaFin);
+
+        $dataProvider = new CActiveDataProvider(get_class($this), array(
+                    'criteria' => $criteria,
+                ));
+        return $dataProvider;
     }
 }
