@@ -252,6 +252,8 @@ class OperacionesChequesController extends Controller {
                         $cheque->tipoTasa = $tcheque['tipoTasa'];
                         $cheque->pesificacion = 0;
                         $cheque->clearing = 0;
+                        $cheque->intereses = $tcheque['intereses'];
+                        $cheque->gastos = $tcheque['gastos'];
 
                         if (!$cheque->save()) {
                             $transaction->rollBack();

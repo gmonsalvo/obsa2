@@ -81,7 +81,8 @@ class Cheques extends CustomCActiveRecord {
         // will receive user inputs.
         return array(
             array('operacionChequeId, tasaDescuento, libradorId, bancoId, montoOrigen, fechaPago, estado, userStamp, timeStamp, sucursalId', 'required'),
-            array('operacionChequeId, clearing, libradorId, bancoId, tipoCheque, estado, sucursalId, tieneNota, intereses, gastos', 'numerical', 'integerOnly' => true),
+            array('operacionChequeId, clearing, libradorId, bancoId, tipoCheque, estado, sucursalId, tieneNota', 'numerical', 'integerOnly' => true),
+            array('intereses, gastos', 'numerical'),
             array('tasaDescuento, pesificacion', 'length', 'max' => 7),
             array('numeroCheque', 'length', 'max' => 45),
             array('montoOrigen, montoNeto, montoGastos', 'length', 'max' => 15),
