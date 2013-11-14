@@ -24,10 +24,34 @@ $('.search-form form').submit(function(){
 	$.fn.yiiGridView.update('cheques-grid', {
 		data: $(this).serialize()
 	});
+	
+	$.ajax({
+	type: 'GET',
+	url:'".$this->createUrl('cheques/calcularTotal')."?fechaPago='+$('#fechaPago').val()+'&clienteId='+$('#OperacionesCheques_clienteId').val(),
+	data:{val:this.value},
+	success: function(data){
+	$('#txtTotal').val(data);
+	},
+	});	
+	
 	return false;
 });
 ");
 ?>
+
+<script>
+	function filaSeleccionada() {
+		
+		$.ajax({
+		type: 'GET',
+		url:'<?php echo $this->createUrl('cheques/calcularTotal')?>?fechaPago='+$('#fechaPago').val()+'&clienteId='+$('#OperacionesCheques_clienteId').val()+'&chequesSeleccionados='+$.fn.yiiGridView.getSelection('cheques-grid'),
+		data:{val:this.value},
+		success: function(data){
+		$('#txtTotal').val(data);
+		},
+		});	
+	}
+</script>
 
 <h1>Listado de Cheques Comprados a Financiera</h1>
 
@@ -37,16 +61,25 @@ $('.search-form form').submit(function(){
 )); ?>
 </div><!-- search-form -->
 
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'id' => 'frmChequesFinanciera',
+	'method'=>'post',
+	'enableClientValidation'=>true,
+)); ?>
+
 <div class="row">
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'cheques-grid',
 	'dataProvider'=>$modelo->searchByFechaClienteAndEstado(),
+	'selectableRows' => '9999',
+	'selectionChanged' => 'filaSeleccionada',
 	//'filter'=>$modelo,
 	'columns'=>array(
 		array(
             'header' => '',
+            'id' => 'idCheques',
             'class' => 'CCheckBoxColumn',
-        ),		
+        ),
 		'numeroCheque',
 		array(
 			'name'=>'bancoId',
@@ -83,8 +116,12 @@ $('.search-form form').submit(function(){
 )); ?>
 </div>
 <div class="row buttons" style='text-align: right;'>
+	<span style='padding-right: 60px;'>
 	<?php echo CHtml::submitButton('Acreditar'); ?>
+	</span>
+	<span>
 	<?php echo CHtml::label('Monto Total', 'lblMontoTotal', array('')); ?>
-	<?php echo CHtml::textField('montoTotal',$modelo->obtenerTotal()); ?>
+	<?php echo CHtml::textField('montoTotal','', array('id'=>'txtTotal', 'style'=>'text-align: right')); ?>
+	</span>
 </div>
-
+<?php $this->endWidget(); ?>

@@ -33,7 +33,7 @@ class ChequesController extends Controller {
                 			'getMontos', 'adminCheques', 'updateAlta', 'updateBaja', 'updateEntrega', 'updateDevolucion',
                 			'updateDestino', 'viewCheck', 'chequesColocadosEnCliente','getBotonera','updateCampos','viewHistorial',
                             'getCheque','entregaDevolucion','getChequesParaEntregaDevolucion','informeChequesEntregaDevolucionPDF',
-                            'reporteComprados', 'cargarChequesCliente', 'chequesFinanciera'),
+                            'reporteComprados', 'cargarChequesCliente', 'chequesFinanciera', 'calcularTotal'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -725,5 +725,21 @@ class ChequesController extends Controller {
 		}*/
 		
 		$this->render('chequesFinanciera', array('modeloOperacionesCheques' => $modeloOperacionesCheques, 'modelo' => $modelo));
+	}
+	
+	public function actionCalcularTotal() {
+					
+		$resultado = '';
+	
+		if ((!isset($_GET["fechaPago"])) || (!isset($_GET["clienteId"]) || (!isset($_GET["chequesSeleccionados"]))) ) {
+			echo "0";
+			return;
+		}
+	
+		$modelo = new Cheques();
+		$modelo->fechaPago = $_GET["fechaPago"];
+		$modelo->clienteId = $_GET["clienteId"];
+	
+		echo $modelo->obtenerTotal(explode(',', $_GET["chequesSeleccionados"]));
 	}
 }

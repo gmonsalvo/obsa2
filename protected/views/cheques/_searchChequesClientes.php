@@ -1,39 +1,11 @@
 <div class="wide form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
+	'id' => 'frmSearchChequesCliente',
+	'enableClientValidation' => true,
 	'action'=>Yii::app()->createUrl($this->route),
-	'method'=>'get',
+	'method'=>'post',
 )); ?>
-
-	<div class="row">
-		<?php echo $form->label($modelo,'fechaPago'); ?>
-		<?php
-		    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-			        // you must specify name or model/attribute
-			        'name' => 'fechaPago',
-			         'model' => $modelo,
-			        'attribute' => 'fechaPago',
-			        'language' => 'es',
-			        'options' => array(
-			            'dateFormat' => 'dd/mm/yy',
-			            //'defaultDate'=>Date('d-m-Y'),
-			            'changeMonth' => 'true',
-			            'changeYear' => 'true',
-			            'showButtonPanel' => 'true',
-			            'constrainInput' => 'false',
-			            'duration' => 'fast',
-			            'showAnim' => 'fold',
-			        ),
-			        'htmlOptions' => array(
-			            'id' => 'fechaPago',
-			            //'value' => '01/02/2013',
-			            //'onChange' => 'js:if(esFechaValida($("#fechaInicio" ))); else { alert("Fecha Invalida"); $( "#fechaInicio" ).focus(); }',
-			            //'style' => 'height:20px;'
-			        )
-	            )
-		    );		
-        ?>
-	</div>
 	<div class="row">
 		<?php echo CHtml::label("Cliente", 'clienteId'); ?>
 		<?php
@@ -62,6 +34,35 @@
                     'tabindex' => 1),
                 //'onSelectScript'=>CHtml::ajax(array('type'=>'POST', 'url'=>array("cheques/cargarChequesCliente"), 'update'=>'#contenedor')),
             ));
+        ?>
+	</div>
+	<div class="row">
+		<?php echo $form->label($modelo,'fechaPago'); ?>
+		<?php
+		    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+			        // you must specify name or model/attribute
+			        'name' => 'fechaPago',
+			         'model' => $modelo,
+			        'attribute' => 'fechaPago',
+			        'language' => 'es',
+			        'options' => array(
+			            'dateFormat' => 'dd/mm/yy',
+			            //'defaultDate'=>Date('d-m-Y'),
+			            'changeMonth' => 'true',
+			            'changeYear' => 'true',
+			            'showButtonPanel' => 'true',
+			            'constrainInput' => 'false',
+			            'duration' => 'fast',
+			            'showAnim' => 'fold',
+			        ),
+			        'htmlOptions' => array(
+			            'id' => 'fechaPago',
+			            //'value' => '01/02/2013',
+			            //'onChange' => 'js:if(esFechaValida($("#fechaInicio" ))); else { alert("Fecha Invalida"); $( "#fechaInicio" ).focus(); }',
+			            //'style' => 'height:20px;'
+			        )
+	            )
+		    );		
         ?>
 	</div>
 
