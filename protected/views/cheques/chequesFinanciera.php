@@ -37,6 +37,13 @@ $('.search-form form').submit(function(){
 	return false;
 });
 ");
+
+Yii::app()->clientScript->registerScript('procesar', "
+	$('#btnAcreditar').click(function(){
+		$('#procesar').val('1');
+	});
+");
+
 ?>
 
 <script>
@@ -61,7 +68,7 @@ $('.search-form form').submit(function(){
 )); ?>
 </div><!-- search-form -->
 
-<?php $form=$this->beginWidget('CActiveForm', array(
+<?php $formProcesar=$this->beginWidget('CActiveForm', array(
 	'id' => 'frmChequesFinanciera',
 	'method'=>'post',
 	'enableClientValidation'=>true,
@@ -101,27 +108,34 @@ $('.search-form form').submit(function(){
             'name' => 'fechaPago',
             'header' => 'Fecha Pago',
             'value' => 'Utilities::viewDateFormat($data->fechaPago)',
+            'htmlOptions'=>array('style' => 'text-align: right;'),
         ),
          array(
             'name' => 'montoOrigen',
             'header' => 'Importe',
             'value' => '"$ ".number_format($data->montoOrigen,2)',
+            'htmlOptions'=>array('style' => 'text-align: right;'),
         ),
          array(
             'name' => 'montoNeto',
             'header' => 'Importe Neto',
             'value' => '"$ ".number_format($data->montoNeto,2)',
+            'htmlOptions'=>array('style' => 'text-align: right;'),
         ),
 	),
 )); ?>
 </div>
 <div class="row buttons" style='text-align: right;'>
 	<span style='padding-right: 60px;'>
-	<?php echo CHtml::submitButton('Acreditar'); ?>
+	<?php echo CHtml::submitButton('Acreditar', array('id'=>'btnAcreditar')); ?>
+	<?php echo CHtml::hiddenField('procesar', '0', array('type'=>"hidden")); ?>
 	</span>
 	<span>
 	<?php echo CHtml::label('Monto Total', 'lblMontoTotal', array('')); ?>
 	<?php echo CHtml::textField('montoTotal','', array('id'=>'txtTotal', 'style'=>'text-align: right')); ?>
 	</span>
+</div>
+<div class="row buttons" style='text-align: right;'>
+	<?php echo CHtml::error($modelo, 'numeroCheque'); ?>
 </div>
 <?php $this->endWidget(); ?>

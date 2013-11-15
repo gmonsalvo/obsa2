@@ -376,7 +376,7 @@ class ChequesController extends Controller {
                     $transaction->commit();
                     Yii::app()->user->setFlash('success', 'El cheque fue dado de baja como rechazado');
                     $this->redirect(array('viewCheck', 'id' => $model->id));
-                }                
+                }
             } catch (Exception $e) {
                 $transaction->rollBack();
                 Yii::app()->user->setFlash('error', $e->getMessage());
@@ -718,11 +718,25 @@ class ChequesController extends Controller {
 		
         if (isset($_GET['Cheques']))
             $model->attributes = $_GET['Cheques'];
-		/*
-		if (isset($_GET['ajax'])) {
-			var_dump($_GET);
+		if ((isset($_POST['procesar'])) && ($_POST['procesar'] == '1')) {
+					
+			//idCheques
+			
+			/*		
+			$transaccion = $connection->beginTransaction();
+
+			try {
+				
+				$transaccion->commit();        
+            } catch (Exception $e) {
+                $transaction->rollBack();
+                Yii::app()->user->setFlash('error', $e->getMessage());
+            }*/
+			
+			
+			var_dump($_GET, $_POST);
 			exit;
-		}*/
+		}
 		
 		$this->render('chequesFinanciera', array('modeloOperacionesCheques' => $modeloOperacionesCheques, 'modelo' => $modelo));
 	}

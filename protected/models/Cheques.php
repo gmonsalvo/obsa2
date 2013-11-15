@@ -575,6 +575,6 @@ class Cheques extends CustomCActiveRecord {
 
 		$resultado = Cheques::model()->find($criteria);
 		
-		return $resultado->total;
+		return Utilities::MoneyFormat($resultado->total);
 	}	
 }
