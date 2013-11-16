@@ -710,33 +710,76 @@ class ChequesController extends Controller {
 	
 	public function actionChequesFinanciera() {
 		
+		if ((isset($_POST['procesar'])) && ($_POST['procesar'] == '1')) {
+			
+			$connection = Yii::app()->db;
+			$transaccion = $connection->beginTransaction();
+
+			try {
+				
+				$idCheques = $_POST['idCheques'];
+				
+				foreach ($idCheques as $chequeId) {
+					
+					$modelo = $this->loadModel($chequeId);
+					
+					if (!isset($modelo))
+						throw new Exception("Error al cargar la información del cheque", 1);    
+					
+					$ctacteCliente = new CtacteClientes();
+					$ctacteCliente->tipoMov = CtacteClientes::TYPE_CREDITO;
+					$ctacteCliente->conceptoId = 19;
+					$ctacteCliente->clienteId =  $modelo->operacionCheque->clienteId;
+					$ctacteCliente->productoId = 1;
+					$ctacteCliente->descripcion = "Credito por la compra de cheque numero ".$modelo->numeroCheque;
+					$ctacteCliente->monto = $modelo->montoNeto;
+					$ctacteCliente->saldoAcumulado=$ctacteCliente->getSaldoAcumuladoActual()+$ctacteCliente->monto;
+	            	$ctacteCliente->fecha = date("Y-m-d");
+	            	$ctacteCliente->origen = "OperacionesCheques";
+	            	$ctacteCliente->identificadorOrigen = $modelo->id;
+					
+	            	if(!$ctacteCliente->save())
+	                	throw new Exception("Error al efectuar movimiento en ctacte de la financiera", 2);                        
+					
+					$detalleColocacion = DetalleColocaciones::model()->getByCheque($modelo->id);
+					
+					if (!isset($detalleColocacion))
+						throw new Exception("Error al obtener el detalle de las colocaciones para el cheque", 3);
+					
+					foreach($detalleColocacion as $detalle) {
+						$ctacteCliente = new CtacteClientes();
+						$ctacteCliente->tipoMov = CtacteClientes::TYPE_CREDITO;
+						$ctacteCliente->conceptoId = 19;
+						$ctacteCliente->clienteId =  $detalle->clienteId;
+						$ctacteCliente->productoId = 1;
+						$ctacteCliente->descripcion = "Acreditacion de comision por pesificacion de cheque numero ".$modelo->numeroCheque;
+						$ctacteCliente->monto = $detalle->monto;
+						$ctacteCliente->saldoAcumulado=$ctacteCliente->getSaldoAcumuladoActual()+$ctacteCliente->monto;
+		            	$ctacteCliente->fecha = date("Y-m-d");
+		            	$ctacteCliente->origen = "OperacionesCheques";
+		            	$ctacteCliente->identificadorOrigen = $modelo->id;
+						
+		            	if(!$ctacteCliente->save())
+		                	throw new Exception("Error al efectuar movimiento en ctacte de un inversor", 4);
+					}
+					
+					$modelo->estado = Cheques::TYPE_ACREDITADO;
+	            	if(!$modelo->save())
+	                	throw new Exception("Error al actualizar el estado del cheque", 5);
+				}
+				$transaccion->commit();     
+				Yii::app()->user->setFlash('success', 'Acreditacion realizada con exito');
+            } catch (Exception $e) {
+                $transaction->rollBack();
+                Yii::app()->user->setFlash('error', $e->getMessage());
+            }
+		}
+		
 		$modeloOperacionesCheques = new OperacionesCheques;
 		$modeloOperacionesCheques->init();
 		
 		$modelo = new Cheques('search');
 		$modelo->unsetAttributes();
-		
-        if (isset($_GET['Cheques']))
-            $model->attributes = $_GET['Cheques'];
-		if ((isset($_POST['procesar'])) && ($_POST['procesar'] == '1')) {
-					
-			//idCheques
-			
-			/*		
-			$transaccion = $connection->beginTransaction();
-
-			try {
-				
-				$transaccion->commit();        
-            } catch (Exception $e) {
-                $transaction->rollBack();
-                Yii::app()->user->setFlash('error', $e->getMessage());
-            }*/
-			
-			
-			var_dump($_GET, $_POST);
-			exit;
-		}
 		
 		$this->render('chequesFinanciera', array('modeloOperacionesCheques' => $modeloOperacionesCheques, 'modelo' => $modelo));
 	}
