@@ -33,7 +33,7 @@ class ChequesController extends Controller {
                 			'getMontos', 'adminCheques', 'updateAlta', 'updateBaja', 'updateEntrega', 'updateDevolucion',
                 			'updateDestino', 'viewCheck', 'chequesColocadosEnCliente','getBotonera','updateCampos','viewHistorial',
                             'getCheque','entregaDevolucion','getChequesParaEntregaDevolucion','informeChequesEntregaDevolucionPDF',
-                            'reporteComprados', 'cargarChequesCliente', 'chequesFinanciera', 'calcularTotal'),
+                            'reporteComprados', 'cargarChequesCliente', 'chequesFinanciera', 'calcularTotal', 'imprimirChequesFinanciera'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -711,7 +711,7 @@ class ChequesController extends Controller {
 	public function actionChequesFinanciera() {
 		
 		if ((isset($_POST['procesar'])) && ($_POST['procesar'] == '1')) {
-			
+
 			$connection = Yii::app()->db;
 			$transaccion = $connection->beginTransaction();
 
@@ -767,21 +767,34 @@ class ChequesController extends Controller {
 	            	if(!$modelo->save())
 	                	throw new Exception("Error al actualizar el estado del cheque", 5);
 				}
-				$transaccion->commit();     
-				Yii::app()->user->setFlash('success', 'Acreditacion realizada con exito');
+				$transaccion->commit();
+				
+		        $ejecutar = '<script type="text/javascript" language="javascript">
+		        window.open("'.Yii::app()->createUrl("/cheques/imprimirChequesFinanciera", array('idCheques' => $_POST['idCheques'])).'"); alert("PEPE!");
+		        </script>';
+		
+		        Yii::app()->session['ejecutar'] = $ejecutar;
+		        Yii::app()->user->setFlash('success', 'Acreditacion realizada con exito');
+		        $this->redirect(array('chequesFinanciera'));
             } catch (Exception $e) {
                 $transaction->rollBack();
                 Yii::app()->user->setFlash('error', $e->getMessage());
             }
 		}
-		
-		$modeloOperacionesCheques = new OperacionesCheques;
-		$modeloOperacionesCheques->init();
-		
-		$modelo = new Cheques('search');
-		$modelo->unsetAttributes();
-		
-		$this->render('chequesFinanciera', array('modeloOperacionesCheques' => $modeloOperacionesCheques, 'modelo' => $modelo));
+		else {
+			if(isset(Yii::app()->session["ejecutar"])){
+	            echo Yii::app()->session["ejecutar"];
+	            unset(Yii::app()->session['ejecutar']);
+	        }		
+			
+			$modeloOperacionesCheques = new OperacionesCheques;
+			$modeloOperacionesCheques->init();
+			
+			$modelo = new Cheques('search');
+			$modelo->unsetAttributes();
+			
+			$this->render('chequesFinanciera', array('modeloOperacionesCheques' => $modeloOperacionesCheques, 'modelo' => $modelo));
+		}
 	}
 	
 	public function actionCalcularTotal() {
@@ -798,5 +811,74 @@ class ChequesController extends Controller {
 		$modelo->clienteId = $_GET["clienteId"];
 	
 		echo $modelo->obtenerTotal(explode(',', $_GET["chequesSeleccionados"]));
+	}
+	
+	public function actionImprimirChequesFinanciera() {
+
+        $pdf = Yii::createComponent('application.extensions.tcpdf.ETcPdf', 'L', 'cm', 'A4', true, 'UTF-8');
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor("CHEQUES DE FINANCIERAS");
+        $pdf->SetTitle("Resumen de la Operatoria");
+        $pdf->SetKeywords("TCPDF, PDF, example, test, guide");
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->AliasNbPages();
+        $pdf->AddPage();
+
+        $pdf->SetFont("times", "", 12);
+		
+		try {
+			
+			$idCheques = $_GET['idCheques'];
+			
+			$nombreFinanciera = "";
+			
+			$html = "";
+			
+			foreach ($idCheques as $chequeId) {
+						
+				$modelo = $this->loadModel($chequeId);
+				
+				if (!isset($modelo))
+					throw new Exception("Error al cargar la información del cheque", 1);    
+						
+				if ($nombreFinanciera == "") {
+					
+					$nombreFinanciera = $modelo->operacionCheque->cliente->razonSocial;
+					
+					$html .= 'Fecha: ' . $modelo->fechaPago .'<br><br>';
+		
+					$html .= "<table border='1' cellpadding='2' style='empty-cells: show;'><tbody>";					
+					$html .= "<tr><td border='1'><u>Financiera: " . $nombreFinanciera . "</u></td></tr><tr><td></td></tr>";
+				}
+				
+				$html .= "<tr><td><u>Cheque Nº:</u> " . $modelo->numeroCheque . " - <u>Monto:</u>" . Utilities::MoneyFormat($modelo->montoNeto) . "</td></tr>";
+				
+				$detalleColocacion = DetalleColocaciones::model()->getByCheque($modelo->id);
+				
+				if (!isset($detalleColocacion))
+					throw new Exception("Error al obtener el detalle de las colocaciones para el cheque", 3);
+				
+				foreach($detalleColocacion as $detalle) {
+					
+					$modeloDetalle = DetalleColocaciones::model()->findByPk($detalle->id);
+					
+					if (!isset($modeloDetalle))
+						throw new Exception("Error al obtener el detalle de las colocaciones para el cheque", 4);
+					
+					$html .= "<tr><td> Inversor: " . $modeloDetalle->cliente->razonSocial . " - Monto: " . Utilities::MoneyFormat($detalle->monto) . "</td></tr>";
+				}
+						
+				$html .= "<tr><td></td></tr>";		
+			}
+
+			$html .= "</tbody></table>";
+
+	        $pdf->writeHTML($html, true, false, true, false, '');
+	        $pdf->Output("prueba.pdf", "I");
+        } catch (Exception $e) {
+            Yii::app()->user->setFlash('error', $e->getMessage());
+			echo $e->getMessage();
+        }
 	}
 }
