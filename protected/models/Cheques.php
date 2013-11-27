@@ -568,9 +568,9 @@ class Cheques extends CustomCActiveRecord {
 		
         $criteria = new CDbCriteria;
 		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "' AND operacionesCheques.clienteId = '".$this->clienteId."'";
-		$criteria->select = 'sum(t.montoNeto) AS total';
-		$criteria->join = 'JOIN operacionesCheques ON operacionesCheques.id = t.operacionChequeId';
-		$criteria->condition = "t.fechaPago = '".Utilities::MysqlDateFormat($this->fechaPago)."'" .$query;
+		$criteria->select = 'sum(t.montoOrigen) AS total';
+		//$criteria->join = 'JOIN operacionesCheques ON operacionesCheques.id = t.operacionChequeId';
+		//$criteria->condition = "t.fechaPago = '".Utilities::MysqlDateFormat($this->fechaPago)."'" .$query;
 		$criteria->addInCondition('t.id', $chequesId);
 
 		$resultado = Cheques::model()->find($criteria);

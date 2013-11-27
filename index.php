@@ -1,21 +1,17 @@
 <?php
 
 // change the following paths if necessary
-<<<<<<< HEAD
+
 $yii=dirname(__FILE__).'../../yii_old/framework/yii.php';
-=======
-//<<<<<<< HEAD
-$yii=dirname(__FILE__).'/../yii/framework/yii.php';
-//=======
-//$yii=dirname(__FILE__).'/yii/framework/yii.php';
->>>>>>> 6fe74cdaec4ba8365975dfa129e4cc608213b712
+//$yii=dirname(__FILE__).'/../yii/framework/yii.php';
+
 //$yii='/var/wwww/yii/framework/yii.php';
-//>>>>>>> 6cf5ec7ff543d3d76fce34d102faccb5f4bb404a
+
 
 $config=dirname(__FILE__).'/protected/config/main.php';
 
 // remove the following lines when in production mode
-defined('YII_DEBUG') or define('YII_DEBUG',true);
+defined('YII_DEBUG') or define('YII_DEBUG',false);
 // specify how many levels of call stack should be shown in each log message
 defined('YII_TRACE_LEVEL') or define('YII_TRACE_LEVEL',3);
 

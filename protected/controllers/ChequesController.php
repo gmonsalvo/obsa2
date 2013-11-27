@@ -731,7 +731,7 @@ class ChequesController extends Controller {
 					$ctacteCliente->conceptoId = 19;
 					$ctacteCliente->clienteId =  $modelo->operacionCheque->clienteId;
 					$ctacteCliente->productoId = 1;
-					$ctacteCliente->descripcion = "Credito por la compra de cheque numero ".$modelo->numeroCheque;
+					$ctacteCliente->descripcion = "Acreditacion Cheque Numero ".$modelo->numeroCheque;
 					$ctacteCliente->monto = $modelo->montoNeto;
 					$ctacteCliente->saldoAcumulado=$ctacteCliente->getSaldoAcumuladoActual()+$ctacteCliente->monto;
 	            	$ctacteCliente->fecha = date("Y-m-d");
@@ -770,7 +770,7 @@ class ChequesController extends Controller {
 				$transaccion->commit();
 				
 		        $ejecutar = '<script type="text/javascript" language="javascript">
-		        window.open("'.Yii::app()->createUrl("/cheques/imprimirChequesFinanciera", array('idCheques' => $_POST['idCheques'])).'"); alert("PEPE!");
+		        window.open("'.Yii::app()->createUrl("/cheques/imprimirChequesFinanciera", array('idCheques' => $_POST['idCheques'])).'");
 		        </script>';
 		
 		        Yii::app()->session['ejecutar'] = $ejecutar;
@@ -802,7 +802,7 @@ class ChequesController extends Controller {
 		$resultado = '';
 	
 		if ((!isset($_GET["fechaPago"])) || (!isset($_GET["clienteId"]) || (!isset($_GET["chequesSeleccionados"]))) ) {
-			echo "0";
+			echo "-10";
 			return;
 		}
 	
