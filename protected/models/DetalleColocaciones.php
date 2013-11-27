@@ -146,4 +146,17 @@ class DetalleColocaciones extends CActiveRecord {
         );
     }
 
+
+	public function getByCheque($chequeId) {
+		
+        $criteria = new CDbCriteria;
+		$criteria->join = 'JOIN colocaciones c ON c.id = t.colocacionId';
+		$criteria->condition = "c.estado='" . Colocaciones::ESTADO_ACTIVA . "' AND c.chequeId = '".$chequeId."'";
+		//$criteria->with = array('colocacion');
+		//$criteria->together = true;
+
+		$resultado = DetalleColocaciones::model()->findAll($criteria);
+		
+		return $resultado;
+	}	
 }

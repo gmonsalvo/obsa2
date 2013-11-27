@@ -209,5 +209,4 @@ class Colocaciones extends CustomCActiveRecord {
         $clearing=$this->diasColocados - Utilities::RestarFechas3($fechaInicio,$fechaFin);
         return $clearing;
     }
-
 }

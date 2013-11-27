@@ -60,6 +60,7 @@ class Cheques extends CustomCActiveRecord {
     private $porcentaje;
     //suma de los montos de cheques
     public $total;
+	public $clienteId;
 
     public static function model($className=__CLASS__) {
         return parent::model($className);
@@ -81,6 +82,7 @@ class Cheques extends CustomCActiveRecord {
         return array(
             array('operacionChequeId, tasaDescuento, libradorId, bancoId, montoOrigen, fechaPago, estado, userStamp, timeStamp, sucursalId', 'required'),
             array('operacionChequeId, clearing, libradorId, bancoId, tipoCheque, estado, sucursalId, tieneNota', 'numerical', 'integerOnly' => true),
+            array('intereses, gastos', 'numerical'),
             array('tasaDescuento, pesificacion', 'length', 'max' => 7),
             array('numeroCheque', 'length', 'max' => 45),
             array('montoOrigen, montoNeto, montoGastos', 'length', 'max' => 15),
@@ -465,7 +467,7 @@ class Cheques extends CustomCActiveRecord {
             }
         }
         else {
-            $query = "t.estado='" . $estado . "'";
+            $query = " AND t.estado='" . $estado . "'";
         }
         if(!empty($chequesId)){
             $query.=" AND t.id NOT IN (";
@@ -547,4 +549,32 @@ class Cheques extends CustomCActiveRecord {
         return $chequesColocados; 
 
     }
+
+    public function searchByFechaClienteAndEstado() {
+    	
+        $criteria = new CDbCriteria;
+		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "' AND operacionesCheques.clienteId = '".$this->clienteId."'";
+		$criteria->join = 'JOIN operacionesCheques ON operacionesCheques.id = t.operacionChequeId';
+		$criteria->condition = "t.fechaPago = '".Utilities::MysqlDateFormat($this->fechaPago)."'" .$query;
+        $criteria->order = 't.fechaPago ASC';		
+
+        $dataProvider = new CActiveDataProvider(get_class($this), array(
+                    'criteria' => $criteria,
+                ));
+        return $dataProvider;
+    }
+	
+	public function obtenerTotal($chequesId=array()) {
+		
+        $criteria = new CDbCriteria;
+		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "' AND operacionesCheques.clienteId = '".$this->clienteId."'";
+		$criteria->select = 'sum(t.montoNeto) AS total';
+		$criteria->join = 'JOIN operacionesCheques ON operacionesCheques.id = t.operacionChequeId';
+		$criteria->condition = "t.fechaPago = '".Utilities::MysqlDateFormat($this->fechaPago)."'" .$query;
+		$criteria->addInCondition('t.id', $chequesId);
+
+		$resultado = Cheques::model()->find($criteria);
+		
+		return Utilities::MoneyFormat($resultado->total);
+	}	
 }

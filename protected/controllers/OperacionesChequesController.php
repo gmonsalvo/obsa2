@@ -252,6 +252,8 @@ class OperacionesChequesController extends Controller {
                         $cheque->tipoTasa = $tcheque['tipoTasa'];
                         $cheque->pesificacion = 0;
                         $cheque->clearing = 0;
+                        $cheque->intereses = $tcheque['intereses'];
+                        $cheque->gastos = $tcheque['gastos'];
 
                         if (!$cheque->save()) {
                             $transaction->rollBack();
@@ -336,24 +338,6 @@ class OperacionesChequesController extends Controller {
                     //borro los registros temporales
                     $command->delete('tmpCheques', 'DATE(timeStamp)=:fechahoy AND userStamp=:username AND presupuesto=0', array(':fechahoy' => Date('Y-m-d'), ':username' => Yii::app()->user->model->username));
                     
-                    $ctacteCliente = new CtacteClientes();
-                    $ctacteCliente->tipoMov = CtacteClientes::TYPE_CREDITO;
-                    $ctacteCliente->conceptoId = 12;
-                    $ctacteCliente->clienteId = $model->clienteId;
-                    $ctacteCliente->productoId = 1;
-                    $ctacteCliente->descripcion = "Credito por la compra de cheques";
-
-                    $ctacteCliente->monto = $model->montoNetoTotal;
-                    $ctacteCliente->saldoAcumulado=$ctacteCliente->getSaldoAcumuladoActual()+$ctacteCliente->monto;
-                    $ctacteCliente->fecha = date("Y-m-d");
-                    $ctacteCliente->origen = "OperacionesCheques";
-                    $ctacteCliente->identificadorOrigen = $model->id;
-
-                    if(!$ctacteCliente->save()){
-                        throw new Exception("Error al efectuar movimiento en ctacte del cliente", 1);                        
-                    }
-
-
                     $transaction->commit();
                     Yii::app()->user->setFlash('success', 'Movimiento realizado con exito');
                     $this->redirect(array('view', 'id' => $model->id));
