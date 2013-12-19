@@ -213,7 +213,7 @@ class OperacionesChequesController extends Controller {
         $model = new OperacionesCheques;
         $tmpcheque = new TmpCheques;
         $tmpcheque->tasaDescuento = 0;
-        $inversores = Clientes::model()->searchInversoresEstrellaParaColocacion(false);
+        $tmpcheque->fisico = 1;
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
         if (isset($_POST['OperacionesCheques'])) {
@@ -278,7 +278,9 @@ class OperacionesChequesController extends Controller {
                         if(!$colocacion->save()) {
                             throw new Exception("Error al efectuar movimiento de colocacion " . var_dump($colocacion->getErrors()), 1); 
                         }
-                        $invs = $inversores->getData();
+                        //$invs = $inversores->getData();
+
+                        $invs = $_POST['inversores'];
                         foreach ($invs as $inversor) {
                             $detalleColocacion = new DetalleColocaciones();
                             $detalleColocacion->colocacionId = $colocacion->id;
@@ -351,6 +353,8 @@ class OperacionesChequesController extends Controller {
                 $transaction->rollBack();
                 Yii::app()->user->setFlash('error', $e->getMessage());
             }
+        } else {
+            $inversores = Clientes::model()->searchInversoresEstrellaParaColocacion(false);
         }
         $model->init();
         $this->render('crearOpFinanciera', array(

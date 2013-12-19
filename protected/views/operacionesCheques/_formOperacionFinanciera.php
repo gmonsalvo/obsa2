@@ -29,6 +29,25 @@ if (isset($_POST['operadorId']) && isset($_POST['clienteId']) && isset($_POST['f
     ') ;?>
 <script>
 
+    function toDate(dStr,format) {
+        var now = new Date();
+        if (format == "dd/mm/yyyy") {
+            now.setDate(dStr.substr(0,2) );
+            now.setMonth( dStr.substr(3,2) -1);
+            now.setFullYear( dStr.substr( 6, 4 ) );
+            return now;
+        }else 
+            return "Invalid Format";
+    }
+    
+    function calcularDias() {
+        var one_day=1000*60*60*24;
+        var fecha1 = toDate($("#TmpCheques_fechaPago").val() , "dd/mm/yyyy" );
+        var fecha2 = toDate($("#OperacionesCheques_fecha").val(), "dd/mm/yyyy");
+        $("#TmpCheques_dias").val(  Math.ceil((  fecha1 - fecha2 )/(one_day)) );    
+    }
+
+
     $("#fechaOperacion").val($("#OperacionesCheques_fecha").val());
     //$(".formatCurrency").formatCurrency();
     function LimpiarFormulario()
@@ -248,7 +267,7 @@ if (count($tmpcheque->getErrors()) > 0) {
             'value' => $fecha,
             'readonly' => "readonly",
             'style' => 'height:20px;',
-            'onChange' => 'js:$("#OperacionesCheques_fecha").focus(); $("#fecha").val($("#OperacionesCheques_fecha").val())',
+            'onChange' => 'js:$("#OperacionesCheques_fecha").focus(); $("#fecha").val($("#OperacionesCheques_fecha").val() )',
         )
             )
     );
@@ -433,7 +452,8 @@ $('.search-form form').submit(function(){
                     // optional: html options will affect the input element, not the datepicker widget itself
                     'htmlOptions' => array(
                         'style' => 'height:20px;',
-                        'onChange' => 'js:if(esFechaValida($( "#TmpCheques_fechaPago" ))) esChequeCorriente(); else { alert("Fecha Invalida"); $( "#TmpCheques_fechaPago" ).focus(); }',
+                        'onChange' => 'js:if(esFechaValida($( "#TmpCheques_fechaPago" ))) { esChequeCorriente(); calcularDias(); }else { alert("Fecha Invalida"); $( "#TmpCheques_fechaPago" ).focus(); }',
+                        'onblur' => 'calcularDias()',
                         'tabindex' => 2,
                     )
                 ));
@@ -615,7 +635,8 @@ $('.search-form form').submit(function(){
                             array(
                                     'name' => 'clienteId',
                                     'header' => '%',
-                                    'value' => '$data->porcentajeSobreInversion',
+                                    'type' => 'raw',
+                                    'value' => 'CHtml::textField("Request[porcentajeSobreInversion]",$data->porcentajeSobreInversion)',
                             ),
                         ),
                     )); ?>
