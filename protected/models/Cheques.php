@@ -61,6 +61,8 @@ class Cheques extends CustomCActiveRecord {
     //suma de los montos de cheques
     public $total;
 	public $clienteId;
+	public $fechaInicio;
+	public $fechaFinal;
 
     public static function model($className=__CLASS__) {
         return parent::model($className);
@@ -132,7 +134,9 @@ class Cheques extends CustomCActiveRecord {
             'timeStamp' => 'Time Stamp',
             'sucursalId' => 'Sucursal',
             'montoGastos' => 'Monto Gastos',
-            'tieneNota' => 'Tiene Nota'
+            'tieneNota' => 'Tiene Nota',
+            'fechaInicio' => 'Fecha Inicial',
+            'fechaFinal' => 'Fecha Final'
         );
     }
 
@@ -564,13 +568,29 @@ class Cheques extends CustomCActiveRecord {
         return $dataProvider;
     }
 	
+    public function searchByFechaAndEstado2() {
+    	
+        $criteria = new CDbCriteria;
+		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "'";
+		$criteria->join = 'JOIN operacionesCheques ON (operacionesCheques.id = t.operacionChequeId) ';
+		$criteria->join .= 'JOIN clientes ON clientes.id = operacionesCheques.clienteId';
+		$criteria->condition = "(t.fechaPago BETWEEN '".Utilities::MysqlDateFormat($this->fechaInicio)."' AND '".Utilities::MysqlDateFormat($this->fechaFinal)."') AND clientes.tipoCliente = 3 " .$query;
+        $criteria->order = 't.fechaPago ASC, clientes.id';		
+
+        $dataProvider = new CActiveDataProvider(get_class($this), array(
+                    'criteria' => $criteria,
+                ));
+        return $dataProvider;
+    }
+	
 	public function obtenerTotal($chequesId=array()) {
 		
         $criteria = new CDbCriteria;
-		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "' AND operacionesCheques.clienteId = '".$this->clienteId."'";
+		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO /*. "' AND operacionesCheques.clienteId = '".$this->clienteId*/."'";
 		$criteria->select = 'sum(t.montoNeto) AS total';
 		$criteria->join = 'JOIN operacionesCheques ON operacionesCheques.id = t.operacionChequeId';
-		$criteria->condition = "t.fechaPago = '".Utilities::MysqlDateFormat($this->fechaPago)."'" .$query;
+		$criteria->condition = "(t.fechaPago BETWEEN '".Utilities::MysqlDateFormat($this->fechaInicio)."' AND '".Utilities::MysqlDateFormat($this->fechaFinal)."')" .$query;
+		//$criteria->condition = "t.fechaPago = '".Utilities::MysqlDateFormat($this->fechaPago)."'" .$query;
 		$criteria->addInCondition('t.id', $chequesId);
 
 		$resultado = Cheques::model()->find($criteria);

@@ -798,9 +798,9 @@ class ChequesController extends Controller {
 	}
 	
 	public function actionCalcularTotal() {
-					
+		/*			
 		$resultado = '';
-	
+		
 		if ((!isset($_GET["fechaPago"])) || (!isset($_GET["clienteId"]) || (!isset($_GET["chequesSeleccionados"]))) ) {
 			echo "0";
 			return;
@@ -808,7 +808,16 @@ class ChequesController extends Controller {
 	
 		$modelo = new Cheques();
 		$modelo->fechaPago = $_GET["fechaPago"];
-		$modelo->clienteId = $_GET["clienteId"];
+		$modelo->clienteId = $_GET["clienteId"];*/
+	
+		if ((!isset($_GET["fechaInicio"])) || (!isset($_GET["fechaFinal"]) || (!isset($_GET["chequesSeleccionados"]))) ) {
+			echo "0";
+			return;
+		}
+	
+		$modelo = new Cheques();
+		$modelo->fechaInicio = $_GET["fechaInicio"];
+		$modelo->fechaFinal = $_GET["fechaFinal"];
 	
 		echo $modelo->obtenerTotal(explode(',', $_GET["chequesSeleccionados"]));
 	}

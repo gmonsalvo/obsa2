@@ -1,19 +1,18 @@
 <?php
 
-if (isset($_POST['Cheques']['fechaPago']))
-    $modelo->fechaPago = $_POST['Cheques']['fechaPago'];
-else if (isset($_GET['Cheques']['fechaPago']))
-	$modelo->fechaPago = $_GET['Cheques']['fechaPago'];
+if (isset($_POST['Cheques']['fechaInicio']))
+    $modelo->fechaInicio = $_POST['Cheques']['fechaInicio'];
+else if (isset($_GET['Cheques']['fechaInicio']))
+	$modelo->fechaInicio = $_GET['Cheques']['fechaInicio'];
 else
-	$modelo->fechaPago = Date('d/m/Y');
+	$modelo->fechaInicio = Date('d/m/Y');
 
-if (isset($_POST['OperacionesCheques']['clienteId']))
-    $modelo->clienteId = $_POST['OperacionesCheques']['clienteId'];
-else if (isset($_GET['OperacionesCheques']['clienteId']))
-	$modelo->clienteId = $_GET['OperacionesCheques']['clienteId'];
+if (isset($_POST['Cheques']['fechaFinal']))
+    $modelo->fechaFinal = $_POST['Cheques']['fechaFinal'];
+else if (isset($_GET['Cheques']['fechaFinal']))
+	$modelo->fechaFinal = $_GET['Cheques']['fechaFinal'];
 else
-	$modelo->clienteId = '';
-
+	$modelo->fechaFinal = Date('d/m/Y');
 
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
@@ -27,7 +26,7 @@ $('.search-form form').submit(function(){
 	
 	$.ajax({
 	type: 'GET',
-	url:'".$this->createUrl('cheques/calcularTotal')."?fechaPago='+$('#fechaPago').val()+'&clienteId='+$('#OperacionesCheques_clienteId').val(),
+	url:'".$this->createUrl('cheques/calcularTotal')."?fechaInicio='+$('#fechaInicio').val()+'&fechaFinal='+$('#fechaFinal').val(),
 	data:{val:this.value},
 	success: function(data){
 	$('#txtTotal').val(data);
@@ -51,7 +50,7 @@ Yii::app()->clientScript->registerScript('procesar', "
 		
 		$.ajax({
 		type: 'GET',
-		url:'<?php echo $this->createUrl('cheques/calcularTotal')?>?fechaPago='+$('#fechaPago').val()+'&clienteId='+$('#OperacionesCheques_clienteId').val()+'&chequesSeleccionados='+$.fn.yiiGridView.getSelection('cheques-grid'),
+		url:'<?php echo $this->createUrl('cheques/calcularTotal')?>?fechaInicio='+$('#fechaInicio').val()+'&fechaFinal='+$('#fechaFinal').val()+'&chequesSeleccionados='+$.fn.yiiGridView.getSelection('cheques-grid'),
 		data:{val:this.value},
 		success: function(data){
 		$('#txtTotal').val(data);
@@ -60,7 +59,7 @@ Yii::app()->clientScript->registerScript('procesar', "
 	}
 </script>
 
-<h1>Listado de Cheques Comprados a Financiera</h1>
+<h1>Listado de Cheques Comprados a Financieras</h1>
 
 <div class="search-form">
 <?php $this->renderPartial('_searchChequesClientes',array(
@@ -77,7 +76,7 @@ Yii::app()->clientScript->registerScript('procesar', "
 <div class="row">
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'cheques-grid',
-	'dataProvider'=>$modelo->searchByFechaClienteAndEstado(),
+	'dataProvider'=>$modelo->searchByFechaAndEstado2(),
 	'selectableRows' => '9999',
 	'selectionChanged' => 'filaSeleccionada',
 	//'filter'=>$modelo,
@@ -125,11 +124,13 @@ Yii::app()->clientScript->registerScript('procesar', "
 	),
 )); ?>
 </div>
+
 <div class="row buttons" style='text-align: right;'>
+	<!--
 	<span style='padding-right: 60px;'>
 	<?php echo CHtml::submitButton('Acreditar', array('id'=>'btnAcreditar')); ?>
 	<?php echo CHtml::hiddenField('procesar', '0', array('type'=>"hidden")); ?>
-	</span>
+	</span>-->
 	<span>
 	<?php echo CHtml::label('Monto Total', 'lblMontoTotal', array('')); ?>
 	<?php echo CHtml::textField('montoTotal','', array('id'=>'txtTotal', 'style'=>'text-align: right')); ?>
@@ -138,4 +139,13 @@ Yii::app()->clientScript->registerScript('procesar', "
 <div class="row buttons" style='text-align: right;'>
 	<?php echo CHtml::error($modelo, 'numeroCheque'); ?>
 </div>
+<br>
+<?php
+	$this->beginWidget('zii.widgets.CPortlet', array(
+        'title' => '',
+    ));
+    echo "<b>Acciones</b>";
+    $this->endWidget();
+?>
+
 <?php $this->endWidget(); ?>

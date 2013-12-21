@@ -6,6 +6,7 @@
 	'action'=>Yii::app()->createUrl($this->route),
 	'method'=>'post',
 )); ?>
+	<!--
 	<div class="row">
 		<?php echo CHtml::label("Cliente", 'clienteId'); ?>
 		<?php
@@ -35,15 +36,15 @@
                 //'onSelectScript'=>CHtml::ajax(array('type'=>'POST', 'url'=>array("cheques/cargarChequesCliente"), 'update'=>'#contenedor')),
             ));
         ?>
-	</div>
+	</div>-->
 	<div class="row">
-		<?php echo $form->label($modelo,'fechaPago'); ?>
+		<?php echo $form->label($modelo,'fechaInicio'); ?>
 		<?php
 		    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
 			        // you must specify name or model/attribute
-			        'name' => 'fechaPago',
+			        'name' => 'fechaInicio',
 			         'model' => $modelo,
-			        'attribute' => 'fechaPago',
+			        'attribute' => 'fechaInicio',
 			        'language' => 'es',
 			        'options' => array(
 			            'dateFormat' => 'dd/mm/yy',
@@ -56,7 +57,7 @@
 			            'showAnim' => 'fold',
 			        ),
 			        'htmlOptions' => array(
-			            'id' => 'fechaPago',
+			            'id' => 'fechaInicio',
 			            //'value' => '01/02/2013',
 			            //'onChange' => 'js:if(esFechaValida($("#fechaInicio" ))); else { alert("Fecha Invalida"); $( "#fechaInicio" ).focus(); }',
 			            //'style' => 'height:20px;'
@@ -66,6 +67,35 @@
         ?>
 	</div>
 
+	<div class="row">
+		<?php echo $form->label($modelo,'fechaFinal'); ?>
+		<?php
+		    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+			        // you must specify name or model/attribute
+			        'name' => 'fechaFinal',
+			         'model' => $modelo,
+			        'attribute' => 'fechaFinal',
+			        'language' => 'es',
+			        'options' => array(
+			            'dateFormat' => 'dd/mm/yy',
+			            //'defaultDate'=>Date('d-m-Y'),
+			            'changeMonth' => 'true',
+			            'changeYear' => 'true',
+			            'showButtonPanel' => 'true',
+			            'constrainInput' => 'false',
+			            'duration' => 'fast',
+			            'showAnim' => 'fold',
+			        ),
+			        'htmlOptions' => array(
+			            'id' => 'fechaFinal',
+			            //'value' => '01/02/2013',
+			            //'onChange' => 'js:if(esFechaValida($("#fechaInicio" ))); else { alert("Fecha Invalida"); $( "#fechaInicio" ).focus(); }',
+			            //'style' => 'height:20px;'
+			        )
+	            )
+		    );		
+        ?>
+	</div>
 	
 	<div class="row buttons">
 		<?php echo CHtml::submitButton('Filtrar'); ?>
