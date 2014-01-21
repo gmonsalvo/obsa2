@@ -139,7 +139,6 @@ Yii::app()->clientScript->registerScript('procesar', "
 <div class="row buttons" style='text-align: right;'>
 	<?php echo CHtml::error($modelo, 'numeroCheque'); ?>
 </div>
-<br>
 <?php
 	$this->beginWidget('zii.widgets.CPortlet', array(
         'title' => '',
@@ -147,5 +146,97 @@ Yii::app()->clientScript->registerScript('procesar', "
     echo "<b>Acciones</b>";
     $this->endWidget();
 ?>
+<br>
+<div class="row">
+	<b>1) PESIFICADOR</b><br><br>
+</div>
+<div class="row" style='border-bottom: 3px solid #b7d6e7;'>
+	<table>
+		<tr>
+			<td style='text-align: left; width: 350px;'>
+				<?php echo $formProcesar->labelEx($modelo,'pesificadorId'); ?>
+				<?php echo $formProcesar->dropDownList($modelo,'pesificadorId', CHtml::listData(Pesificadores::model()->findAllByAttributes(array(), 'UPPER(denominacion) LIKE UPPER("%BARBIERI%")', array()), 'id', 'denominacion')); ?>
+				<?php echo $formProcesar->error($modelo,'pesificadorId'); ?>
+			</td>
+			<td style='text-align: left; width: 150px;'>
+				<?php echo $formProcesar->labelEx($modelo,'tasaPesificacion'); ?>
+				<?php echo $formProcesar->textField($modelo,'tasaPesificacion',array('size'=>5,'maxlength'=>5)); ?>
+				<?php echo $formProcesar->error($modelo,'tasaPesificacion'); ?>
+			</td>
+			<td style='text-align: left; width: 220px;'>
+				<?php echo $formProcesar->labelEx($modelo,'netoPesificacion'); ?>
+				<?php echo $formProcesar->textField($modelo,'netoPesificacion',array('size'=>15,'maxlength'=>15)); ?>
+				<?php echo $formProcesar->error($modelo,'netoPesificacion'); ?>
+			</td>
+			<td style='text-align: right;'>
+				<?php echo CHtml::button('Procesar', array('onclick'=>'js:enviar(1);')); ?>
+			</td>
+		</tr>
+	</table>
+</div>
+<br>
+<div class="row">
+	<b>2) ACREDITAR EN FINANCIERA DE ORIGEN</b><br><br>
+</div>
+<div class="row" style='border-bottom: 3px solid #b7d6e7;'>
+	<table>
+		<tr>
+			<td>
+			<?php echo CHtml::button('Procesar', array('onclick'=>'js:enviar(2);')); ?>
+			</td>
+		</tr>
+	</table>
+</div>
+<br>
+<div class="row">
+	<b>3) ACREDITAR EN OTRA FINANCIERA</b><br><br>
+</div>
+<div class="row" style='border-bottom: 3px solid #b7d6e7;'>
+	<table>
+		<tr>
+			<td style='text-align: left; width: 350px;'>
+				<?php echo $formProcesar->labelEx($modelo,'financieraId'); ?>
+				<?php echo $formProcesar->dropDownList($modelo,'financieraId', CHtml::listData(Clientes::model()->findAllByAttributes(array(), 'tipoCliente = :tipoCliente', array('tipoCliente' => Clientes::TYPE_FINANCIERA)), 'id', 'razonSocial')); ?>
+				<?php echo $formProcesar->error($modelo,'financieraId'); ?>
+			</td>
+			<td style='text-align: left; width: 150px;'>
+				<?php echo $formProcesar->labelEx($modelo,'costoFinanciera'); ?>
+				<?php echo $formProcesar->textField($modelo,'costoFinanciera',array('size'=>5,'maxlength'=>5)); ?>
+				<?php echo $formProcesar->error($modelo,'costoFinanciera'); ?>
+			</td>
+			<td style='text-align: right;'>
+				<?php echo CHtml::button('Procesar', array('onclick'=>'js:enviar(3);')); ?>
+			</td>
+		</tr>
+	</table>
+</div>
+<br>
+<div class="row">
+	<b>4) CLIENTE INVERSOR</b><br><br>
+</div>
+<div class="row" style='border-bottom: 3px solid #b7d6e7;'>
+	<table>
+		<tr>
+			<td style='text-align: left; width: 350px;'>
+				<?php echo $formProcesar->labelEx($modelo,'inversorId'); ?>
+				<?php echo $formProcesar->dropDownList($modelo,'inversorId', CHtml::listData(Clientes::model()->findAllByAttributes(array(), '(tipoCliente = :tipoCliente1) OR (tipoCliente = :tipoCliente2)', array('tipoCliente1' => Clientes::TYPE_INVERSOR, 'tipoCliente2' => Clientes::TYPE_TOMADOR_E_INVERSOR)), 'id', 'razonSocial')); ?>
+				<?php echo $formProcesar->error($modelo,'inversorId'); ?>
+			</td>
+			<td style='text-align: left; width: 220px;'>
+				<?php echo $formProcesar->labelEx($modelo,'porcentajeReconocimiento'); ?>
+				<?php echo $formProcesar->textField($modelo,'porcentajeReconocimiento',array('size'=>5,'maxlength'=>5)); ?>
+				<?php echo $formProcesar->error($modelo,'porcentajeReconocimiento'); ?>
+			</td>
+			<td style='text-align: left; width: 220px;'>
+				<?php echo $formProcesar->labelEx($modelo,'netoInversor'); ?>
+				<?php echo $formProcesar->textField($modelo,'netoInversor',array('size'=>15,'maxlength'=>15)); ?>
+				<?php echo $formProcesar->error($modelo,'netoInversor'); ?>
+			</td>
+			<td style='text-align: right;'>
+				<?php echo CHtml::button('Procesar', array('onclick'=>'js:enviar(4);')); ?>
+			</td>
+		</tr>
+	</table>
+</div>
 
 <?php $this->endWidget(); ?>

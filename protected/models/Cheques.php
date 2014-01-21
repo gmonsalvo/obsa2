@@ -63,6 +63,14 @@ class Cheques extends CustomCActiveRecord {
 	public $clienteId;
 	public $fechaInicio;
 	public $fechaFinal;
+	public $pesificadorId;
+	public $tasaPesificacion;
+	public $netoPesificacion;
+	public $financieraId;
+	public $costoFinanciera;
+	public $inversorId;
+	public $porcentajeReconocimiento;
+	public $netoInversor;
 
     public static function model($className=__CLASS__) {
         return parent::model($className);
@@ -85,9 +93,9 @@ class Cheques extends CustomCActiveRecord {
             array('operacionChequeId, tasaDescuento, libradorId, bancoId, montoOrigen, fechaPago, estado, userStamp, timeStamp, sucursalId', 'required'),
             array('operacionChequeId, clearing, libradorId, bancoId, tipoCheque, estado, sucursalId, tieneNota', 'numerical', 'integerOnly' => true),
             array('intereses, gastos', 'numerical'),
-            array('tasaDescuento, pesificacion', 'length', 'max' => 7),
+            array('tasaDescuento, pesificacion, tasaPesificacion, porcetajeInversor, costoFinanciera', 'length', 'max' => 7),
             array('numeroCheque', 'length', 'max' => 45),
-            array('montoOrigen, montoNeto, montoGastos', 'length', 'max' => 15),
+            array('montoOrigen, montoNeto, montoGastos, montoPesificacion, netoInversor', 'length', 'max' => 15),
             array('endosante', 'length', 'max' => 100),
             array('userStamp', 'length', 'max' => 50),
             // The following rule is used by search().
@@ -136,7 +144,15 @@ class Cheques extends CustomCActiveRecord {
             'montoGastos' => 'Monto Gastos',
             'tieneNota' => 'Tiene Nota',
             'fechaInicio' => 'Fecha Inicial',
-            'fechaFinal' => 'Fecha Final'
+            'fechaFinal' => 'Fecha Final',
+            'pesificadorId' => 'Pesificador',
+            'tasaPesificacion' => 'Tasa',
+            'netoPesificacion' => 'Monto Neto',
+            'financieraId' => 'Financiera Destino',
+            'costoFinanciera' => 'Costo',
+            'inversorId' => 'Cliente',
+            'porcentajeReconocimiento' => 'Porc. Reconocimiento',
+            'netoInversor' => 'Monto Neto',
         );
     }
 
