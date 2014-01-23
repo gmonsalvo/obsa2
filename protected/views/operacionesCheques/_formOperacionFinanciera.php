@@ -497,7 +497,6 @@ $('.search-form form').submit(function(){
         <tr>
             <td><?php echo $form->labelEx($tmpcheque, 'montoOrigen'); ?></td>
             <td><?php echo $form->labelEx($tmpcheque, 'tipoCheque'); ?></td>
-            <td colspan="2"><?php echo $form->labelEx($tmpcheque, 'endosante'); ?></td>
 
         </tr>
         <tr>
@@ -511,7 +510,7 @@ $('.search-form form').submit(function(){
                 <?php //echo $form->textField($tmpcheque, 'montoOrigen', array('size' => 20, 'maxlength' => 17, 'tabindex' => 6, "class"=>"currency")); ?>
             </td>
             <td><?php echo $form->dropDownList($tmpcheque, 'tipoCheque', $tmpcheque->getTypeOptions('tipoCheque'), array('prompt' => 'Seleccione un Tipo', 'tabindex' => 7)); ?></td>
-            <td colspan="2"><?php echo $form->textField($tmpcheque, 'endosante', array('size' => 35, 'maxlength' => 100, 'tabindex' => 8)); ?></td>
+            
         </tr>
         <tr>
             <td><?php echo $form->labelEx($tmpcheque, 'tieneNota' ); ?>
@@ -537,7 +536,7 @@ $('.search-form form').submit(function(){
                 <?php $this->widget("FormatCurrency",
                 array(
                     "model" => $tmpcheque,
-                    "attribute" => "intereses",
+                    "attribute" => "tasaDescuento",
                     "htmlOptions" => array("tabindex"=>15)
                     ));
                 ?>
@@ -546,7 +545,7 @@ $('.search-form form').submit(function(){
                 <?php $this->widget("FormatCurrency",
                 array(
                     "model" => $tmpcheque,
-                    "attribute" => "gastos",
+                    "attribute" => "pesificacion",
                     "htmlOptions" => array("tabindex"=>16)
                     ));
                 ?>
@@ -589,7 +588,7 @@ $('.search-form form').submit(function(){
                                 $("#totalPesificacion").val(datos.totalPesificacion);
 								$.fn.yiiGridView.update("tmp-cheques-grid");
 							}
-						}'),array("tabindex"=>15)
+						}'),array("tabindex"=>17)
         );
         ?>
         <?php echo CHtml::button("Limpiar formulario",array("onclick"=>"LimpiarFormulario()"));?>
@@ -631,6 +630,11 @@ $('.search-form form').submit(function(){
                                     'name' => 'clienteId',
                                     'header' => 'Cliente',
                                     'value' => '$data->razonSocial',
+                            ),
+                            array(
+                                    'name' => 'clienteId',
+                                    'header' => 'Saldo',
+                                    'value' => '$data->getSaldo()',
                             ),
                             array(
                                     'name' => 'clienteId',
