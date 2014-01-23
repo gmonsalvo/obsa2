@@ -71,6 +71,7 @@ class Cheques extends CustomCActiveRecord {
 	public $inversorId;
 	public $porcentajeReconocimiento;
 	public $netoInversor;
+	public $accion;
 
     public static function model($className=__CLASS__) {
         return parent::model($className);
@@ -93,9 +94,9 @@ class Cheques extends CustomCActiveRecord {
             array('operacionChequeId, tasaDescuento, libradorId, bancoId, montoOrigen, fechaPago, estado, userStamp, timeStamp, sucursalId', 'required'),
             array('operacionChequeId, clearing, libradorId, bancoId, tipoCheque, estado, sucursalId, tieneNota', 'numerical', 'integerOnly' => true),
             array('intereses, gastos', 'numerical'),
-            array('tasaDescuento, pesificacion, tasaPesificacion, porcetajeInversor, costoFinanciera', 'length', 'max' => 7),
+            array('tasaDescuento, pesificacion, tasaPesificacion, porcentajeReconocimiento, costoFinanciera', 'length', 'max' => 7),
             array('numeroCheque', 'length', 'max' => 45),
-            array('montoOrigen, montoNeto, montoGastos, montoPesificacion, netoInversor', 'length', 'max' => 15),
+            array('montoOrigen, montoNeto, montoGastos, netoPesificacion, netoInversor', 'length', 'max' => 15),
             array('endosante', 'length', 'max' => 100),
             array('userStamp', 'length', 'max' => 50),
             // The following rule is used by search().

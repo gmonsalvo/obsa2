@@ -30,6 +30,7 @@ $('.search-form form').submit(function(){
 	data:{val:this.value},
 	success: function(data){
 	$('#txtTotal').val(data);
+	calcularNeto(1);
 	},
 	});	
 	
@@ -54,8 +55,65 @@ Yii::app()->clientScript->registerScript('procesar', "
 		data:{val:this.value},
 		success: function(data){
 		$('#txtTotal').val(data);
+		calcularNeto(1);
 		},
 		});	
+	}
+
+	function pesificadorSeleccionado() {
+		
+		$.ajax({
+		type: 'GET',
+		url:'<?php echo $this->createUrl('cheques/buscarTasa')?>?pesificadorId='+$('#Cheques_pesificadorId').val(),
+		data:{val:this.value},
+		success: function(data){
+		$('#Cheques_tasaPesificacion').val(data);
+		calcularNeto(1);
+		},
+		});	
+	}
+	
+	function calcularNeto(tipo) {
+		
+		monto = $('#txtTotal').val();
+		
+		monto = monto.replace('$','');
+		monto = monto.replace('.','');
+		monto = monto.replace(/,/,'.');
+		
+		valorCheques = parseFloat(monto);
+		
+		if (tipo == 1) {
+			tasa = parseFloat($('#Cheques_tasaPesificacion').val());
+			
+			$("#monto").val()-$("#monto").val()*$("#porcentajePesific").val()/100
+			
+			neto = valorCheques - ((valorCheques * tasa) / 100);
+			if (!isNaN(neto))
+				parseFloat($('#Cheques_netoPesificacion').val(neto.toFixed(2)));
+		}
+	}
+	
+	function enviar(tipo) {
+		
+		if (($('#txtTotal').val() == null) || ($('#txtTotal').val() == '')) {
+			alert('Debe seleccionar los cheques a procesar');
+			return;
+		}
+		
+		if (tipo == 1) {
+			if (($('#Cheques_tasaPesificacion').val() == null) || ($('#Cheques_tasaPesificacion').val() == '')) {
+				alert('Debe especificar la tasa');
+				$('#Cheques_tasaPesificacion').focus();
+				return;
+			}
+			$('#Cheques_accion').val('1');
+			$('#frmChequesFinanciera').submit();
+		}
+		if (tipo == 2) {
+			$('#Cheques_accion').val('2');
+			$('#frmChequesFinanciera').submit();
+		}
 	}
 </script>
 
@@ -72,6 +130,8 @@ Yii::app()->clientScript->registerScript('procesar', "
 	'method'=>'post',
 	'enableClientValidation'=>true,
 )); ?>
+
+<?php echo $formProcesar->hiddenField($modelo,'accion') ?>
 
 <div class="row">
 <?php $this->widget('zii.widgets.grid.CGridView', array(
@@ -133,7 +193,7 @@ Yii::app()->clientScript->registerScript('procesar', "
 	</span>-->
 	<span>
 	<?php echo CHtml::label('Monto Total', 'lblMontoTotal', array('')); ?>
-	<?php echo CHtml::textField('montoTotal','', array('id'=>'txtTotal', 'style'=>'text-align: right')); ?>
+	<?php echo CHtml::textField('montoTotal','', array('id'=>'txtTotal', 'style'=>'text-align: right', 'readOnly' => 'true')); ?>
 	</span>
 </div>
 <div class="row buttons" style='text-align: right;'>
@@ -145,6 +205,9 @@ Yii::app()->clientScript->registerScript('procesar', "
     ));
     echo "<b>Acciones</b>";
     $this->endWidget();
+	
+	//$pesificadores = Pesificadores::model()->findAllByAttributes(array(), 'UPPER(denominacion) LIKE UPPER("%BARBIERI%")', array()); 
+	$pesificadores = Pesificadores::model()->findAll();
 ?>
 <br>
 <div class="row">
@@ -155,17 +218,18 @@ Yii::app()->clientScript->registerScript('procesar', "
 		<tr>
 			<td style='text-align: left; width: 350px;'>
 				<?php echo $formProcesar->labelEx($modelo,'pesificadorId'); ?>
-				<?php echo $formProcesar->dropDownList($modelo,'pesificadorId', CHtml::listData(Pesificadores::model()->findAllByAttributes(array(), 'UPPER(denominacion) LIKE UPPER("%BARBIERI%")', array()), 'id', 'denominacion')); ?>
+				<?php echo $formProcesar->dropDownList($modelo,'pesificadorId', CHtml::listData($pesificadores, 'id', 'denominacion'), array('onChange' => 'pesificadorSeleccionado();')); ?>
 				<?php echo $formProcesar->error($modelo,'pesificadorId'); ?>
 			</td>
 			<td style='text-align: left; width: 150px;'>
 				<?php echo $formProcesar->labelEx($modelo,'tasaPesificacion'); ?>
-				<?php echo $formProcesar->textField($modelo,'tasaPesificacion',array('size'=>5,'maxlength'=>5)); ?>
+				<?php echo $formProcesar->textField($modelo,'tasaPesificacion',array('size'=>5, 'maxlength'=>5, 'onblur'=>'calcularNeto(1);', 'onchange'=>'calcularNeto(1);', 'onkeyup'=>'calcularNeto(1)', 
+													'style'=>'text-align:right;', 'value' => $pesificadores[0]->tasaDescuento, 'readOnly' => 'true')) ?>
 				<?php echo $formProcesar->error($modelo,'tasaPesificacion'); ?>
 			</td>
 			<td style='text-align: left; width: 220px;'>
 				<?php echo $formProcesar->labelEx($modelo,'netoPesificacion'); ?>
-				<?php echo $formProcesar->textField($modelo,'netoPesificacion',array('size'=>15,'maxlength'=>15)); ?>
+				<?php echo $formProcesar->textField($modelo,'netoPesificacion',array('size'=>15,'maxlength'=>15, 'style'=>'text-align:right;', 'readOnly'=>'true')); ?>
 				<?php echo $formProcesar->error($modelo,'netoPesificacion'); ?>
 			</td>
 			<td style='text-align: right;'>
