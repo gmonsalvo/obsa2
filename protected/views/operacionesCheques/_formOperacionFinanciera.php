@@ -37,14 +37,21 @@ if (isset($_POST['operadorId']) && isset($_POST['clienteId']) && isset($_POST['f
             now.setFullYear( dStr.substr( 6, 4 ) );
             return now;
         }else 
-            return "Invalid Format";
+            return false;
     }
     
     function calcularDias() {
         var one_day=1000*60*60*24;
-        var fecha1 = toDate($("#TmpCheques_fechaPago").val() , "dd/mm/yyyy" );
-        var fecha2 = toDate($("#OperacionesCheques_fecha").val(), "dd/mm/yyyy");
-        $("#TmpCheques_dias").val(  Math.ceil((  fecha1 - fecha2 )/(one_day)) );    
+        var fecha1 = false;
+        var fecha2 = false;
+        if ($("#TmpCheques_fechaPago").val()!="")
+            fecha1 = toDate($("#TmpCheques_fechaPago").val() , "dd/mm/yyyy" );
+        if ($("#OperacionesCheques_fecha").val()!="")
+            fecha2 = toDate($("#OperacionesCheques_fecha").val(), "dd/mm/yyyy");
+        if (fecha1!=false && fecha2!=false) {
+            $("#TmpCheques_dias").val(  Math.ceil((  fecha1 - fecha2 )/(one_day)) );    
+        }
+        
     }
 
 
