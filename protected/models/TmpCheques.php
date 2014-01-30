@@ -22,6 +22,8 @@
  * @property integer $sucursalId
  * @property integer $tieneNota
  * @property integer $presupuesto
+ * @property string $gastos
+ * @property string $intereses
  */
 class TmpCheques extends CustomCActiveRecord {
     /**
