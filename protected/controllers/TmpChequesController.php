@@ -96,7 +96,7 @@ class TmpChequesController extends Controller {
                       "montoNominalTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNominalTotal),
                       "totalIntereses"=>Utilities::MoneyFormat($operacionesCheques->intereses),
                       "totalPesificacion"=>Utilities::MoneyFormat($operacionesCheques->gastos),
-                      "errores"=> " " . $model->gastos
+                      "errores"=> null
                       );
                     
                   } else {
@@ -105,7 +105,7 @@ class TmpChequesController extends Controller {
                       "montoNominalTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNominalTotal),
                       "totalIntereses"=>Utilities::MoneyFormat($operacionesCheques->montoIntereses),
                       "totalPesificacion"=>Utilities::MoneyFormat($operacionesCheques->montoPesificacion),
-                      "errores"=>" " . $model->gastos
+                      "errores"=> null 
                       );
                     
                   }
@@ -114,7 +114,7 @@ class TmpChequesController extends Controller {
                   $model->unsetAttributes();  // clear any default values
                   if (isset($_GET['TmpCheques']))
                       $model->attributes = $_GET['TmpCheques'];
-              }else
+              } else
                   echo CJSON::encode(array("errores"=>CHtml::errorSummary($model)));
             }
         }
