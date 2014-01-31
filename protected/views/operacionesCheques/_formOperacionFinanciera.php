@@ -37,16 +37,21 @@ if (isset($_POST['operadorId']) && isset($_POST['clienteId']) && isset($_POST['f
             now.setFullYear( dStr.substr( 6, 4 ) );
             return now;
         }else 
-            return "Invalid Format";
+            return false;
     }
     
     function calcularDias() {
         var one_day=1000*60*60*24;
-        var fecha1 = toDate($("#TmpCheques_fechaPago").val() , "dd/mm/yyyy" );
-        var fecha2 = toDate($("#OperacionesCheques_fecha").val(), "dd/mm/yyyy");
-        $("#TmpCheques_dias").val(  Math.ceil((  fecha1 - fecha2 )/(one_day)) );    
-    }
-
+        var fecha1 = false;
+        var fecha2 = false;
+        if ($("#TmpCheques_fechaPago").val()!="")
+            fecha1 = toDate($("#TmpCheques_fechaPago").val() , "dd/mm/yyyy" );
+        if ($("#OperacionesCheques_fecha").val()!="")
+            fecha2 = toDate($("#OperacionesCheques_fecha").val(), "dd/mm/yyyy");
+        if (fecha1!=false && fecha2!=false) {
+            $("#TmpCheques_dias").val(  Math.ceil((  fecha1 - fecha2 )/(one_day)) );    
+        }        
+    }!
 
     $("#fechaOperacion").val($("#OperacionesCheques_fecha").val());
     //$(".formatCurrency").formatCurrency();
@@ -188,8 +193,7 @@ if (isset($_POST['operadorId']) && isset($_POST['clienteId']) && isset($_POST['f
         //     });
     }
 
-    function esFechaValida(txtDate)
-    {
+    function esFechaValida(txtDate) {
           var currVal = txtDate.val();
           if(currVal == '')
             return false;
@@ -224,6 +228,22 @@ if (isset($_POST['operadorId']) && isset($_POST['clienteId']) && isset($_POST['f
             dtDay="0"+dtDay;
         txtDate.val(dtDay+"/"+dtMonth+"/"+dtYear);
           return true;
+    }
+
+    function verificarInversores() {
+        var cantInversores = document.getElementsByName("inversores[porcentajeSobreInversion]").length;
+        var i = 0;
+        var suma = 0;
+        while (i<cantInversores) {
+            suma = suma + parseFloat(document.getElementsByName("inversores[porcentajeSobreInversion]")[i].value);
+            i++;
+        }
+        if (suma!=100) {
+            alert('Los porcentajes sobre inversión no suman 100. Verificar. ' + suma);
+            return false;
+        } else {
+            $('#tmp-cheques-form').submit();
+        }
     }
 
 </script>
@@ -366,12 +386,12 @@ $('.search-form form').submit(function(){
             array(
                 'name' => 'tasaDescuento',
                 'header' => 'Gastos por Intereses',
-                'value' => 'Utilities::MoneyFormat($data->descuentoTasa)',
+                'value' => 'Utilities::MoneyFormat($data->intereses)',
             ),
             array(
                 'name' => 'pesificacion',
                 'header' => 'Gastos por Pesific.',
-                'value' => 'Utilities::MoneyFormat($data->descuentoPesific)',
+                'value' => 'Utilities::MoneyFormat($data->gastos)',
             ),
             array(
                 'name' => 'montoNeto',
@@ -536,7 +556,7 @@ $('.search-form form').submit(function(){
                 <?php $this->widget("FormatCurrency",
                 array(
                     "model" => $tmpcheque,
-                    "attribute" => "tasaDescuento",
+                    "attribute" => 'intereses',
                     "htmlOptions" => array("tabindex"=>15)
                     ));
                 ?>
@@ -545,7 +565,7 @@ $('.search-form form').submit(function(){
                 <?php $this->widget("FormatCurrency",
                 array(
                     "model" => $tmpcheque,
-                    "attribute" => "pesificacion",
+                    "attribute" => 'gastos',
                     "htmlOptions" => array("tabindex"=>16)
                     ));
                 ?>
@@ -640,7 +660,7 @@ $('.search-form form').submit(function(){
                                     'name' => 'clienteId',
                                     'header' => '%',
                                     'type' => 'raw',
-                                    'value' => 'CHtml::textField("Request[porcentajeSobreInversion]",$data->porcentajeSobreInversion)',
+                                    'value' => 'CHtml::textField("inversores[porcentajeSobreInversion]",$data->porcentajeSobreInversion)',
                             ),
                         ),
                     )); ?>
@@ -652,7 +672,7 @@ $('.search-form form').submit(function(){
         <?php echo $form->hiddenField($model, 'fecha', array('id'=>'fecha','value' => date("d-m-Y"))); ?>
         <?php echo $form->hiddenField($model, 'clienteId', array("id"=>"clienteId",'value' => '')); ?>
     <div class="row buttons">
-        <?php echo CHtml::submitButton('Crear Operacion'); ?>
+        <?php echo CHtml::button('Crear Operacion',array("onclick"=>"verificarInversores()")); ?>
     </div>
 
     <?php $this->endWidget(); ?>

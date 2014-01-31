@@ -70,7 +70,9 @@ class TmpChequesController extends Controller {
             $model->attributes = $_POST['TmpCheques'];
             if(!isset($_POST['TmpCheques']['tasaDescuento']))
               $model->tasaDescuento = 0;
-            $resultado = $model->calcularMontoNeto($model->montoOrigen, $model->fechaPago, $model->tasaDescuento, $model->clearing, $model->pesificacion, $_POST["fechaOperacion"]);
+            
+            $resultado = $model->calcularMontoNeto($model->montoOrigen, $model->fechaPago, $model->tasaDescuento, $model->clearing, $model->pesificacion, $_POST["fechaOperacion"]);  
+              
             if ($resultado["estado"]==TmpCheques::TYPE_INDEFINIDO){
               $model->addError("estado",$resultado["error"]);
               echo CJSON::encode(array("errores"=>CHtml::errorSummary($model)));
@@ -85,13 +87,28 @@ class TmpChequesController extends Controller {
               if ($model->save()) {
                   $operacionesCheques=new OperacionesCheques();
                   $operacionesCheques->init();
-                  $datos=array(
-                    "montoNetoTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNetoTotal),
-                    "montoNominalTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNominalTotal),
-                    "totalIntereses"=>Utilities::MoneyFormat($operacionesCheques->montoIntereses),
-                    "totalPesificacion"=>Utilities::MoneyFormat($operacionesCheques->montoPesificacion),
-                    "errores"=>null
-                    );
+
+                  Yii::trace('LOG TmpChequesController - gastos ' . $model->gastos . ' - int '. $model->intereses, 'system.CModule');
+
+                  if ($model->gastos>0 || $model->intereses>0) {
+                    $datos=array(
+                      "montoNetoTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNetoTotal),
+                      "montoNominalTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNominalTotal),
+                      "totalIntereses"=>Utilities::MoneyFormat($operacionesCheques->intereses),
+                      "totalPesificacion"=>Utilities::MoneyFormat($operacionesCheques->gastos),
+                      "errores"=> " " . $model->gastos
+                      );
+                    
+                  } else {
+                    $datos=array(
+                      "montoNetoTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNetoTotal),
+                      "montoNominalTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNominalTotal),
+                      "totalIntereses"=>Utilities::MoneyFormat($operacionesCheques->montoIntereses),
+                      "totalPesificacion"=>Utilities::MoneyFormat($operacionesCheques->montoPesificacion),
+                      "errores"=>" " . $model->gastos
+                      );
+                    
+                  }
                   echo CJSON::encode($datos);
                   $model = new TmpCheques('search');
                   $model->unsetAttributes();  // clear any default values
