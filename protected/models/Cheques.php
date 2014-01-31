@@ -73,6 +73,8 @@ class Cheques extends CustomCActiveRecord {
 	public $netoInversor;
 	public $accion;
 
+	///////////
+
     public static function model($className=__CLASS__) {
         return parent::model($className);
     }

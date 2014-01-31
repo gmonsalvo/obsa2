@@ -710,8 +710,6 @@ class ChequesController extends Controller {
 	
 	public function actionChequesFinanciera() {
 
-		//var_dump($_POST);
-		//exit();
 		/*
 		array(4) {
 			["Cheques"]=> array(9) {
