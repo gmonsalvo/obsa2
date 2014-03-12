@@ -583,8 +583,6 @@ $('.search-form form').submit(function(){
                         $("#TmpCheques_fechaPago").focus();
                         return false;
                     }
-                    alert($("#TmpCheques_intereses").val());
-                    alert($("#TmpCheques_gastos").val());
 					return true;
 				}',
             'success' => 'js: function(data) {
