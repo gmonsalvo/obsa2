@@ -556,19 +556,19 @@ $('.search-form form').submit(function(){
                 <?php $this->widget("FormatCurrency",
                 array(
                     "model" => $tmpcheque,
-                    "attribute" => 'intereses',
+                    "attribute" => "intereses",
                     "htmlOptions" => array("tabindex"=>15)
                     ));
-                ?>
+            ?>
             </td>
             <td><?php echo $form->labelEx($tmpcheque, 'gastos'); ?>
                 <?php $this->widget("FormatCurrency",
                 array(
                     "model" => $tmpcheque,
-                    "attribute" => 'gastos',
+                    "attribute" => "gastos",
                     "htmlOptions" => array("tabindex"=>16)
                     ));
-                ?>
+            ?>
             </td>
         </tr>
 
@@ -581,7 +581,9 @@ $('.search-form form').submit(function(){
     ?>
     <div class="row buttons">
         <?php
-        echo CHtml::ajaxSubmitButton(Yii::t('tmpcheques', 'Agregar Cheque'), CHtml::normalizeUrl(array('tmpCheques/create', 'render' => false)), array(
+        echo CHtml::ajaxSubmitButton(Yii::t('tmpcheques', 'Agregar Cheque'), 
+                                        CHtml::normalizeUrl(array('tmpCheques/create', 'render' => false)), 
+            array(
             'data' => 'js:jQuery(this).parents("form").serialize()+"&fechaOperacion="+$("#OperacionesCheques_fecha").val()',
             'beforeSend' => 'js:function(){
 					if($("#TmpCheques_tasaDescuento").val()=="" || $("#TmpCheques_clearing").val()=="" || $("#TmpCheques_montoOrigen").val()=="" || $("#TmpCheques_fechaPago").val()==""){
@@ -593,6 +595,8 @@ $('.search-form form').submit(function(){
                         $("#TmpCheques_fechaPago").focus();
                         return false;
                     }
+                    alert($("#TmpCheques_intereses").val());
+                    alert($("#TmpCheques_gastos").val());
 					return true;
 				}',
             'success' => 'js: function(data) {

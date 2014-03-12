@@ -62,6 +62,8 @@ class Cheques extends CustomCActiveRecord {
     public $total;
 	public $clienteId;
 
+	///////////
+
     public static function model($className=__CLASS__) {
         return parent::model($className);
     }
