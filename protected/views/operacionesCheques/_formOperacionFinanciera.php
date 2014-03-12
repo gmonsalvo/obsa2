@@ -553,22 +553,10 @@ $('.search-form form').submit(function(){
                 <?php echo $form->dropDownList($tmpcheque, 'tipoTasa', CHtml::listData(TipoTasa::model()->findAll(), 'id', 'nombre'), array('prompt' => 'Seleccione un Tipo de Tasa', 'tabindex' => 14)); ?>
             </td>
             <td><?php echo $form->labelEx($tmpcheque, 'intereses'); ?>
-                <?php $this->widget("FormatCurrency",
-                array(
-                    "model" => $tmpcheque,
-                    "attribute" => "intereses",
-                    "htmlOptions" => array("tabindex"=>15)
-                    ));
-            ?>
+                <?php echo $form->textField($tmpcheque, 'intereses', array('size' => 5, 'maxlength' => 100, 'tabindex' => 15));?>
             </td>
             <td><?php echo $form->labelEx($tmpcheque, 'gastos'); ?>
-                <?php $this->widget("FormatCurrency",
-                array(
-                    "model" => $tmpcheque,
-                    "attribute" => "gastos",
-                    "htmlOptions" => array("tabindex"=>16)
-                    ));
-            ?>
+                <?php echo $form->textField($tmpcheque, 'gastos', array('size' => 5, 'maxlength' => 100, 'tabindex' => 16));?>
             </td>
         </tr>
 

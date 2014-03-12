@@ -91,11 +91,13 @@ class TmpChequesController extends Controller {
                   Yii::trace('LOG TmpChequesController - gastos ' . $model->gastos . ' - int '. $model->intereses, 'system.CModule');
 
                   if ($model->gastos>0 || $model->intereses>0) {
-                    $datos=array(
+                    $operacionesCheques->montoIntereses += $model->intereses;
+                    $operacionesCheques->montoPesificacion += $model->gastos;
+                    $datos=array(                      
                       "montoNetoTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNetoTotal),
                       "montoNominalTotal"=>Utilities::MoneyFormat($operacionesCheques->montoNominalTotal),
-                      "totalIntereses"=>Utilities::MoneyFormat($operacionesCheques->intereses),
-                      "totalPesificacion"=>Utilities::MoneyFormat($operacionesCheques->gastos),
+                      "totalIntereses"=>Utilities::MoneyFormat($operacionesCheques->montoIntereses),
+                      "totalPesificacion"=>Utilities::MoneyFormat($operacionesCheques->montoPesificacion),
                       "errores"=> null
                       );
                     
