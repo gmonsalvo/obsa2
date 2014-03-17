@@ -214,9 +214,13 @@ class OperacionesChequesController extends Controller {
         $tmpcheque = new TmpCheques;
         $tmpcheque->tasaDescuento = 0;
         $tmpcheque->fisico = 1;
+        Yii::trace('LOG - entrando  ' . ((isset($_POST['OperacionesCheques']) )?'POST':'GET') , 'system.CModule');
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
         if (isset($_POST['OperacionesCheques'])) {
+
+            Yii::trace('LOG - POST REALIZADO ' , 'system.CModule');
+
             $model->attributes = $_POST['OperacionesCheques'];
             $model->estado = OperacionesCheques::ESTADO_A_PAGAR;
             $model->montoNetoTotal = Utilities::Unformat($model->montoNetoTotal);
@@ -225,6 +229,7 @@ class OperacionesChequesController extends Controller {
             $command = Yii::app()->db->createCommand();
             $tmpcheques = $command->select('*')->from('tmpCheques')->where('DATE(timeStamp)=:fechahoy AND userStamp=:username AND presupuesto=0', array(':fechahoy' => Date('Y-m-d'), ':username' => Yii::app()->user->model->username))->queryAll();
             $transaction = $connection->beginTransaction();
+            Yii::trace('LOG - TRANSACCION COMENZADA ' , 'system.CModule');
             try {
 
                 if ($model->save() && count($tmpcheques) > 0) { //si valida OperacionCheque y ademas cargo algun TmpCheque
@@ -254,12 +259,13 @@ class OperacionesChequesController extends Controller {
                         $cheque->clearing = 0;
                         $cheque->intereses = $tcheque['intereses'];
                         $cheque->gastos = $tcheque['gastos'];
-
+                        
                         if (!$cheque->save()) {
+                            Yii::trace('LOG - NO SE GRABO -ROLLBACK ' , 'system.CModule');
                             $transaction->rollBack();
                             Yii::app()->user->setFlash('error', var_dump($cheque->getErrors()));
-                            $this->render('crear', array(
-                                'model' => $model, 'tmpcheque' => $tmpcheque
+                            $this->render('crearOpFinanciera', array(
+                                    'model' => $model, 'tmpcheque' => $tmpcheque, 'inversores' => $inversores, 
                             ));
                         }
 
@@ -280,18 +286,24 @@ class OperacionesChequesController extends Controller {
                         }
                         //$invs = $inversores->getData();
 
-                        $invs = $_POST['inversores'];
-                        foreach ($invs as $inversor) {
-                            $detalleColocacion = new DetalleColocaciones();
-                            $detalleColocacion->colocacionId = $colocacion->id;
-                            $detalleColocacion->clienteId = $inversor->id;
-                            $detalleColocacion->monto = Utilities::truncateFloat( ($cheque->montoOrigen * $inversor->porcentajeSobreInversion)/100 , 2);
-                            $detalleColocacion->tasa = Utilities::truncateFloat( $inversor->tasaInversor , 2);
-                            if (!$detalleColocacion->save()) {
-                                throw new Exception("Error al efectuar movimiento en detalle de colocacion", 1); 
+                        if ( $_POST['inversores'] ) {
+                            Yii::trace('LOG - inversores  ' . ((isset($_POST['inversoresID']) )?'CON INVERSORES':'SIN INVERSORES') , 'system.CModule');
+                            $invs = $_POST['inversoresID'];
+                            $porcentajes = $_POST['inversores'];
+                            $i = 0;
+                            foreach ($invs as $inversor) {
+                                $porcentaje = $porcentajes[$i++];
+                                Yii::trace('LOG - inversores  ' . $inversor . ' - % ' - $porcentaje, 'system.CModule');
+                                $detalleColocacion = new DetalleColocaciones();
+                                $detalleColocacion->colocacionId = $colocacion->id;
+                                $detalleColocacion->clienteId = $inversor;
+                                $detalleColocacion->monto = Utilities::truncateFloat( ($cheque->montoOrigen * $porcentaje )/100 , 2);
+                                $detalleColocacion->tasa = Utilities::truncateFloat( $tcheque['tasa'] , 2);
+                                if (!$detalleColocacion->save()) {
+                                    throw new Exception("Error al efectuar movimiento en detalle de colocacion", 1); 
+                                }
                             }
                         }
-
 
                          ##Acredito la prevision por la pesificacion usando la tasa promedio
                     
@@ -353,13 +365,20 @@ class OperacionesChequesController extends Controller {
                 $transaction->rollBack();
                 Yii::app()->user->setFlash('error', $e->getMessage());
             }
+
+            //$model->init();
+            $this->render('crearOpFinanciera', array(
+                'model' => $model, 'tmpcheque' => $tmpcheque, 'inversores' => $inversores, 
+            ));
+
         } else {
             $inversores = Clientes::model()->searchInversoresEstrellaParaColocacion(false);
+            $model->init();
+            $this->render('crearOpFinanciera', array(
+                'model' => $model, 'tmpcheque' => $tmpcheque, 'inversores' => $inversores, 
+            ));
         }
-        $model->init();
-        $this->render('crearOpFinanciera', array(
-            'model' => $model, 'tmpcheque' => $tmpcheque, 'inversores' => $inversores, 
-        ));
+        
     }
 
     /**

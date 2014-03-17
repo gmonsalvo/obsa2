@@ -231,18 +231,19 @@ if (isset($_POST['operadorId']) && isset($_POST['clienteId']) && isset($_POST['f
     }
 
     function verificarInversores() {
-        var cantInversores = document.getElementsByName("inversores[porcentajeSobreInversion]").length;
+        var cantInversores = document.getElementsByName("inversores[]").length;
         var i = 0;
         var suma = 0;
         while (i<cantInversores) {
-            suma = suma + parseFloat(document.getElementsByName("inversores[porcentajeSobreInversion]")[i].value);
+            suma = suma + parseFloat(document.getElementsByName("inversores[]")[i].value);
             i++;
         }
         if (suma!=100) {
             alert('Los porcentajes sobre inversión no suman 100. Verificar. ' + suma);
             return false;
         } else {
-            $('#tmp-cheques-form').submit();
+            alert("submitting");
+            $('#operaciones-cheques-form').submit();
         }
     }
 
@@ -267,8 +268,7 @@ if (count($tmpcheque->getErrors()) > 0) {
     <table>
         <tr>
             <td><?php echo CHtml::label("Fecha", 'fecha'); ?></td>
-            <td><?php
-    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <td><?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
         // you must specify name or model/attribute
         'model' => $model,
         'attribute' => 'fecha',
@@ -638,6 +638,12 @@ $('.search-form form').submit(function(){
                         'columns'=>array(
                             array(
                                     'name' => 'clienteId',
+                                    'header' => '',
+                                    'type' => 'raw',
+                                    'value' => 'CHtml::hiddenField("inversoresID[]",$data->id)',
+                            ),
+                            array(
+                                    'name' => 'clienteId',
                                     'header' => 'Cliente',
                                     'value' => '$data->razonSocial',
                             ),
@@ -650,7 +656,7 @@ $('.search-form form').submit(function(){
                                     'name' => 'clienteId',
                                     'header' => '%',
                                     'type' => 'raw',
-                                    'value' => 'CHtml::textField("inversores[porcentajeSobreInversion]",$data->porcentajeSobreInversion)',
+                                    'value' => 'CHtml::textField("inversores[]",$data->porcentajeSobreInversion)',
                             ),
                         ),
                     )); ?>
