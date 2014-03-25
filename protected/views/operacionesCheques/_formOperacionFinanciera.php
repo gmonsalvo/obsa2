@@ -231,18 +231,19 @@ if (isset($_POST['operadorId']) && isset($_POST['clienteId']) && isset($_POST['f
     }
 
     function verificarInversores() {
-        var cantInversores = document.getElementsByName("inversores[porcentajeSobreInversion]").length;
+        var cantInversores = document.getElementsByName("inversores[]").length;
         var i = 0;
         var suma = 0;
         while (i<cantInversores) {
-            suma = suma + parseFloat(document.getElementsByName("inversores[porcentajeSobreInversion]")[i].value);
+            suma = suma + parseFloat(document.getElementsByName("inversores[]")[i].value);
             i++;
         }
         if (suma!=100) {
             alert('Los porcentajes sobre inversión no suman 100. Verificar. ' + suma);
             return false;
         } else {
-            $('#tmp-cheques-form').submit();
+            alert("submitting");
+            $('#operaciones-cheques-form').submit();
         }
     }
 
@@ -267,8 +268,7 @@ if (count($tmpcheque->getErrors()) > 0) {
     <table>
         <tr>
             <td><?php echo CHtml::label("Fecha", 'fecha'); ?></td>
-            <td><?php
-    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <td><?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
         // you must specify name or model/attribute
         'model' => $model,
         'attribute' => 'fecha',
@@ -553,22 +553,10 @@ $('.search-form form').submit(function(){
                 <?php echo $form->dropDownList($tmpcheque, 'tipoTasa', CHtml::listData(TipoTasa::model()->findAll(), 'id', 'nombre'), array('prompt' => 'Seleccione un Tipo de Tasa', 'tabindex' => 14)); ?>
             </td>
             <td><?php echo $form->labelEx($tmpcheque, 'intereses'); ?>
-                <?php $this->widget("FormatCurrency",
-                array(
-                    "model" => $tmpcheque,
-                    "attribute" => "intereses",
-                    "htmlOptions" => array("tabindex"=>15)
-                    ));
-            ?>
+                <?php echo $form->textField($tmpcheque, 'intereses', array('size' => 5, 'maxlength' => 100, 'tabindex' => 15));?>
             </td>
             <td><?php echo $form->labelEx($tmpcheque, 'gastos'); ?>
-                <?php $this->widget("FormatCurrency",
-                array(
-                    "model" => $tmpcheque,
-                    "attribute" => "gastos",
-                    "htmlOptions" => array("tabindex"=>16)
-                    ));
-            ?>
+                <?php echo $form->textField($tmpcheque, 'gastos', array('size' => 5, 'maxlength' => 100, 'tabindex' => 16));?>
             </td>
         </tr>
 
@@ -595,8 +583,6 @@ $('.search-form form').submit(function(){
                         $("#TmpCheques_fechaPago").focus();
                         return false;
                     }
-                    alert($("#TmpCheques_intereses").val());
-                    alert($("#TmpCheques_gastos").val());
 					return true;
 				}',
             'success' => 'js: function(data) {
@@ -652,6 +638,12 @@ $('.search-form form').submit(function(){
                         'columns'=>array(
                             array(
                                     'name' => 'clienteId',
+                                    'header' => '',
+                                    'type' => 'raw',
+                                    'value' => 'CHtml::hiddenField("inversoresID[]",$data->id)',
+                            ),
+                            array(
+                                    'name' => 'clienteId',
                                     'header' => 'Cliente',
                                     'value' => '$data->razonSocial',
                             ),
@@ -664,7 +656,7 @@ $('.search-form form').submit(function(){
                                     'name' => 'clienteId',
                                     'header' => '%',
                                     'type' => 'raw',
-                                    'value' => 'CHtml::textField("inversores[porcentajeSobreInversion]",$data->porcentajeSobreInversion)',
+                                    'value' => 'CHtml::textField("inversores[]",$data->porcentajeSobreInversion)',
                             ),
                         ),
                     )); ?>
