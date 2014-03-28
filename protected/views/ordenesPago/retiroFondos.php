@@ -52,7 +52,6 @@ $this->menu = array(
                 var datos=jQuery.parseJSON(data);
                 $(".oculto").css("display","block");
                 $("#saldoCtaCte").val(datos.saldo);
-                $("#saldoColocaciones").val(datos.saldoColocaciones);
                 $("#montoPermitidoDescubierto").val(datos.montoPermitidoDescubierto);
 
                 $("#botonSubmit").removeAttr("disabled");
@@ -183,10 +182,6 @@ $this->menu = array(
     <div class="row oculto">
         <?php echo CHtml::label('Saldo en cta cte', 'saldoCtaCte'); ?>
         <?php echo CHtml::textField('saldoCtaCte', 0, array('id' => 'saldoCtaCte', 'size' => 15, 'maxlength' => 15, 'readonly' => 'readonly')); ?>
-    </div>
-    <div class="row oculto">
-        <?php echo CHtml::label('Saldo en colocaciones', 'saldoColocaciones'); ?>
-        <?php echo CHtml::textField('saldoColocaciones', 0, array('id' => 'saldoColocaciones', 'size' => 15, 'maxlength' => 15, 'readonly' => 'readonly')); ?>
     </div>
    <div class="row oculto">
         <?php echo CHtml::label('Monto Permitido Descubierto', 'montoPermitidoDescubierto'); ?>

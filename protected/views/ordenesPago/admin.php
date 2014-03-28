@@ -100,7 +100,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
         ),
         array(
             'name' => 'clienteId',
-            'header' => 'Cliente',
+            'header' => 'Cliente/Financiera',
             'value' => '$data->cliente->razonSocial',
         ),
         'fecha',

@@ -8,7 +8,7 @@
 )); ?>
 	<!--
 	<div class="row">
-		<?php echo CHtml::label("Cliente", 'clienteId'); ?>
+		<?php echo CHtml::label("Financiera", 'clienteId'); ?>
 		<?php
             $this->widget('CustomEJuiAutoCompleteFkField', array(
                 'model' => $modeloOperacionesCheques,

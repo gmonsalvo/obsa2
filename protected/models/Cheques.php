@@ -61,17 +61,6 @@ class Cheques extends CustomCActiveRecord {
     //suma de los montos de cheques
     public $total;
 	public $clienteId;
-	public $fechaInicio;
-	public $fechaFinal;
-	public $pesificadorId;
-	public $tasaPesificacion;
-	public $netoPesificacion;
-	public $financieraId;
-	public $costoFinanciera;
-	public $inversorId;
-	public $porcentajeReconocimiento;
-	public $netoInversor;
-	public $accion;
 
 	///////////
 
@@ -96,9 +85,9 @@ class Cheques extends CustomCActiveRecord {
             array('operacionChequeId, tasaDescuento, libradorId, bancoId, montoOrigen, fechaPago, estado, userStamp, timeStamp, sucursalId', 'required'),
             array('operacionChequeId, clearing, libradorId, bancoId, tipoCheque, estado, sucursalId, tieneNota', 'numerical', 'integerOnly' => true),
             array('intereses, gastos', 'numerical'),
-            array('tasaDescuento, pesificacion, tasaPesificacion, porcentajeReconocimiento, costoFinanciera', 'length', 'max' => 7),
+            array('tasaDescuento, pesificacion', 'length', 'max' => 7),
             array('numeroCheque', 'length', 'max' => 45),
-            array('montoOrigen, montoNeto, montoGastos, netoPesificacion, netoInversor', 'length', 'max' => 15),
+            array('montoOrigen, montoNeto, montoGastos', 'length', 'max' => 15),
             array('endosante', 'length', 'max' => 100),
             array('userStamp', 'length', 'max' => 50),
             // The following rule is used by search().
@@ -145,17 +134,7 @@ class Cheques extends CustomCActiveRecord {
             'timeStamp' => 'Time Stamp',
             'sucursalId' => 'Sucursal',
             'montoGastos' => 'Monto Gastos',
-            'tieneNota' => 'Tiene Nota',
-            'fechaInicio' => 'Fecha Inicial',
-            'fechaFinal' => 'Fecha Final',
-            'pesificadorId' => 'Pesificador',
-            'tasaPesificacion' => 'Tasa',
-            'netoPesificacion' => 'Monto Neto',
-            'financieraId' => 'Financiera Destino',
-            'costoFinanciera' => 'Costo',
-            'inversorId' => 'Cliente',
-            'porcentajeReconocimiento' => 'Porc. Reconocimiento',
-            'netoInversor' => 'Monto Neto',
+            'tieneNota' => 'Tiene Nota'
         );
     }
 
@@ -587,28 +566,12 @@ class Cheques extends CustomCActiveRecord {
         return $dataProvider;
     }
 	
-    public function searchByFechaAndEstado2() {
-    	
-        $criteria = new CDbCriteria;
-		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "'";
-		$criteria->join = 'JOIN operacionesCheques ON (operacionesCheques.id = t.operacionChequeId) ';
-		$criteria->join .= 'JOIN clientes ON clientes.id = operacionesCheques.clienteId';
-		$criteria->condition = "(t.fechaPago BETWEEN '".Utilities::MysqlDateFormat($this->fechaInicio)."' AND '".Utilities::MysqlDateFormat($this->fechaFinal)."') AND clientes.tipoCliente = 3 " .$query;
-        $criteria->order = 't.fechaPago ASC, clientes.id';		
-
-        $dataProvider = new CActiveDataProvider(get_class($this), array(
-                    'criteria' => $criteria,
-                ));
-        return $dataProvider;
-    }
-	
 	public function obtenerTotal($chequesId=array()) {
 		
         $criteria = new CDbCriteria;
-		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO /*. "' AND operacionesCheques.clienteId = '".$this->clienteId*/."'";
-		$criteria->select = 'sum(t.montoNeto) AS total';
-		$criteria->join = 'JOIN operacionesCheques ON operacionesCheques.id = t.operacionChequeId';
-		$criteria->condition = "(t.fechaPago BETWEEN '".Utilities::MysqlDateFormat($this->fechaInicio)."' AND '".Utilities::MysqlDateFormat($this->fechaFinal)."')" .$query;
+		$query = " AND t.estado='" . Cheques::TYPE_EN_CARTERA_COLOCADO . "' AND operacionesCheques.clienteId = '".$this->clienteId."'";
+		$criteria->select = 'sum(t.montoOrigen) AS total';
+		//$criteria->join = 'JOIN operacionesCheques ON operacionesCheques.id = t.operacionChequeId';
 		//$criteria->condition = "t.fechaPago = '".Utilities::MysqlDateFormat($this->fechaPago)."'" .$query;
 		$criteria->addInCondition('t.id', $chequesId);
 

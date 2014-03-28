@@ -33,7 +33,7 @@ class ChequesController extends Controller {
                 			'getMontos', 'adminCheques', 'updateAlta', 'updateBaja', 'updateEntrega', 'updateDevolucion',
                 			'updateDestino', 'viewCheck', 'chequesColocadosEnCliente','getBotonera','updateCampos','viewHistorial',
                             'getCheque','entregaDevolucion','getChequesParaEntregaDevolucion','informeChequesEntregaDevolucionPDF',
-                            'reporteComprados', 'cargarChequesCliente', 'chequesFinanciera', 'calcularTotal', 'buscarTasa', 'imprimirChequesFinanciera'),
+                            'reporteComprados', 'cargarChequesCliente', 'chequesFinanciera', 'calcularTotal', 'imprimirChequesFinanciera'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -709,6 +709,8 @@ class ChequesController extends Controller {
 	}
 	
 	public function actionChequesFinanciera() {
+<<<<<<< HEAD
+=======
 
 		/*
 		array(4) {
@@ -718,161 +720,78 @@ class ChequesController extends Controller {
 			["idCheques_all"]=> string(1) "1" 
 			["idCheques"]=> array(2) { [0]=> string(1) "1" [1]=> string(1) "2" } ["montoTotal"]=> string(12) "$ 253.333,00" 
 		}*/	
+>>>>>>> 89c53bd8d1eb5a7d67ba4f3fa131ce06d8e42ff0
 		
-		if (isset($_POST['Cheques']['accion'])) {
-			if ($_POST['Cheques']['accion'] == '1') {
-				
-				$conexion = Yii::app()->db;
-		        $command = Yii::app()->db->createCommand();
-		        $transaccion = $conexion->beginTransaction();
-				
-				
-				$modeloPesificaciones = new Pesificaciones;
-				
-				$modeloPesificaciones->fecha = date('Y-m-d');
-				$modeloPesificaciones->pesificadorId = $_POST['Cheques']['pesificadorId'];
-				$modeloPesificaciones->tasaPesificacion = $_POST['Cheques']['tasaPesificacion'];
-				$modeloPesificaciones->montoAcreditar = 0;
-				$modeloPesificaciones->montoGastos = 0;
-				$modeloPesificaciones->estado = Pesificaciones::ESTADO_ABIERTO;
-                $modeloPesificaciones->sucursalId = Yii::app()->user->model->sucursalId;
-                $modeloPesificaciones->userStamp = Yii::app()->user->model->username;
-                $modeloPesificaciones->timeStamp = Date("Y-m-d h:m:s");
+		if ((isset($_POST['procesar'])) && ($_POST['procesar'] == '1')) {
 
-				try {
-					if ($modeloPesificaciones->save()) {
-	                    $comisionPesificador=0;
-	                    $pesificacionId = $modeloPesificaciones->id;
-	                    $sql = "INSERT INTO detallePesificaciones (pesificacionId, chequeId, tipoMov, conceptoId, estado, monto) VALUES(:pesificacionId, :chequeId, :tipoMov, :conceptoId, :estado, :monto)";
-	                    $command = $conexion->createCommand($sql);
-						$tasaDescuento = $modeloPesificaciones->pesificador->tasaDescuento;
-						for ($i = 0; $i < count($_POST['idCheques']); $i++) {
-							$cheque = Cheques::model()->findByPk($_POST['idCheques'][$i]);
-                            $cheque->estado = Cheques::TYPE_EN_PESIFICADOR;
-                            $command->bindValue(":pesificacionId", $pesificacionId, PDO::PARAM_STR);
-                            $command->bindValue(":chequeId", $_POST['idCheques'][$i], PDO::PARAM_STR);
-                            $command->bindValue(":tipoMov", DetallePesificaciones::TYPE_DEBITO, PDO::PARAM_INT);
-                            $command->bindValue(":conceptoId", 1, PDO::PARAM_INT);
-                            $command->bindValue(":estado", 1, PDO::PARAM_INT);
-                            $command->bindValue(":monto", $cheque->montoOrigen, PDO::PARAM_STR);
-                            $command->execute();
-                            if (!$cheque->save())
-                                throw new Exception($cheque->getErrors());
-                            $modeloPesificaciones->montoGastos += ($cheque->montoOrigen * $tasaDescuento) / 100;
-                            $comisionPesificador += $cheque->montoOrigen * ($tasaDescuento / 100);
-						}
+			$connection = Yii::app()->db;
+			$transaccion = $connection->beginTransaction();
 
-						$sql = "INSERT INTO detallePesificaciones (pesificacionId, chequeId, tipoMov, conceptoId, estado, monto) VALUES(:pesificacionId, :chequeId, :tipoMov, :conceptoId, :estado, :monto)";
-	                    $command = $conexion->createCommand($sql);
-	                    $command->bindValue(":pesificacionId", $pesificacionId, PDO::PARAM_STR);
-	                    $command->bindValue(":chequeId", 0, PDO::PARAM_STR);
-	                    $command->bindValue(":tipoMov", DetallePesificaciones::TYPE_CREDITO, PDO::PARAM_INT);
-	                    $command->bindValue(":conceptoId", 5, PDO::PARAM_INT);
-	                    $command->bindValue(":estado", 1, PDO::PARAM_INT);
-	                    $command->bindValue(":monto", $comisionPesificador, PDO::PARAM_STR);
-	                    $command->execute();
-	                    $modeloPesificaciones->save();
-	                    $transaccion->commit();
-	                    $cheque = new Cheques('search');
-	                    $cheque->unsetAttributes();  // clear any default values
-	                    echo '<script type="text/javascript" language="javascript">
-	                                                window.open("ResumenPDF/' . $modeloPesificaciones->id . '");
-	                                                </script>';
-	                    Yii::app()->user->setFlash('success', 'Pesificacion creada con exito');
-	                    $this->redirect(array('chequesFinanciera'));
-					}
-					else
-						Yii::app()->user->setFlash('error', 'Error al crear la pesificacion');
-				}
-	            catch (Exception $e) {
-	                $transaccion->rollBack();
-	                Yii::app()->user->setFlash('error', 'Error al crear la pesificacion:' . $e->getMessage());
-	            }
-			}
-			if ($_POST['Cheques']['accion'] == '2') {
-				$conexion = Yii::app()->db;
-				$transaccion = $conexion->beginTransaction();
-	
-				try {
+			try {
+				
+				$idCheques = $_POST['idCheques'];
+				
+				foreach ($idCheques as $chequeId) {
 					
-					$idCheques = $_POST['idCheques'];
+					$modelo = $this->loadModel($chequeId);
 					
-					foreach ($idCheques as $chequeId) {
-						
-						$modelo = $this->loadModel($chequeId);
-						
-						if (!isset($modelo))
-							throw new Exception("Error al cargar la información del cheque", 1);    
-						
+					if (!isset($modelo))
+						throw new Exception("Error al cargar la información del cheque", 1);    
+					
+					$ctacteCliente = new CtacteClientes();
+					$ctacteCliente->tipoMov = CtacteClientes::TYPE_CREDITO;
+					$ctacteCliente->conceptoId = 19;
+					$ctacteCliente->clienteId =  $modelo->operacionCheque->clienteId;
+					$ctacteCliente->productoId = 1;
+					$ctacteCliente->descripcion = "Acreditacion Cheque Numero ".$modelo->numeroCheque;
+					$ctacteCliente->monto = $modelo->montoNeto;
+					$ctacteCliente->saldoAcumulado=$ctacteCliente->getSaldoAcumuladoActual()+$ctacteCliente->monto;
+	            	$ctacteCliente->fecha = date("Y-m-d");
+	            	$ctacteCliente->origen = "OperacionesCheques";
+	            	$ctacteCliente->identificadorOrigen = $modelo->id;
+					
+	            	if(!$ctacteCliente->save())
+	                	throw new Exception("Error al efectuar movimiento en ctacte de la financiera", 2);                        
+					
+					$detalleColocacion = DetalleColocaciones::model()->getByCheque($modelo->id);
+					
+					if (!isset($detalleColocacion))
+						throw new Exception("Error al obtener el detalle de las colocaciones para el cheque", 3);
+					
+					foreach($detalleColocacion as $detalle) {
 						$ctacteCliente = new CtacteClientes();
 						$ctacteCliente->tipoMov = CtacteClientes::TYPE_CREDITO;
 						$ctacteCliente->conceptoId = 19;
-						$ctacteCliente->clienteId =  $modelo->operacionCheque->clienteId;
+						$ctacteCliente->clienteId =  $detalle->clienteId;
 						$ctacteCliente->productoId = 1;
-						$ctacteCliente->descripcion = "Credito por la compra de cheque numero ".$modelo->numeroCheque;
-						$ctacteCliente->monto = $modelo->montoNeto;
+						$ctacteCliente->descripcion = "Acreditacion de comision por pesificacion de cheque numero ".$modelo->numeroCheque;
+						$ctacteCliente->monto = $detalle->monto;
 						$ctacteCliente->saldoAcumulado=$ctacteCliente->getSaldoAcumuladoActual()+$ctacteCliente->monto;
 		            	$ctacteCliente->fecha = date("Y-m-d");
 		            	$ctacteCliente->origen = "OperacionesCheques";
 		            	$ctacteCliente->identificadorOrigen = $modelo->id;
 						
 		            	if(!$ctacteCliente->save())
-		                	throw new Exception("Error al efectuar movimiento en ctacte de la financiera", 2);                        
-						
-						$detalleColocacion = DetalleColocaciones::model()->getByCheque($modelo->id);
-						
-						if (!isset($detalleColocacion))
-							throw new Exception("Error al obtener el detalle de las colocaciones para el cheque", 3);
-						
-						foreach($detalleColocacion as $detalle) {
-							$ctacteCliente = new CtacteClientes();
-							$ctacteCliente->tipoMov = CtacteClientes::TYPE_CREDITO;
-							$ctacteCliente->conceptoId = 19;
-							$ctacteCliente->clienteId =  $detalle->clienteId;
-							$ctacteCliente->productoId = 1;
-							$ctacteCliente->descripcion = "Acreditacion de comision por pesificacion de cheque numero ".$modelo->numeroCheque;
-							$ctacteCliente->monto = $detalle->monto;
-							$ctacteCliente->saldoAcumulado=$ctacteCliente->getSaldoAcumuladoActual()+$ctacteCliente->monto;
-			            	$ctacteCliente->fecha = date("Y-m-d");
-			            	$ctacteCliente->origen = "OperacionesCheques";
-			            	$ctacteCliente->identificadorOrigen = $modelo->id;
-							
-			            	if(!$ctacteCliente->save())
-			                	throw new Exception("Error al efectuar movimiento en ctacte de un inversor", 4);
-						}
-						
-						$modelo->estado = Cheques::TYPE_ACREDITADO;
-		            	if(!$modelo->save())
-		                	throw new Exception("Error al actualizar el estado del cheque", 5);
+		                	throw new Exception("Error al efectuar movimiento en ctacte de un inversor", 4);
 					}
-					$transaccion->commit();
 					
-			        $ejecutar = '<script type="text/javascript" language="javascript">
-			        window.open("'.Yii::app()->createUrl("/cheques/imprimirChequesFinanciera", array('idCheques' => $_POST['idCheques'])).'"); alert("PEPE!");
-			        </script>';
-			
-			        Yii::app()->session['ejecutar'] = $ejecutar;
-			        Yii::app()->user->setFlash('success', 'Acreditacion realizada con exito');
-			        $this->redirect(array('chequesFinanciera'));
-	            } catch (Exception $e) {
-	                $transaction->rollBack();
-	                Yii::app()->user->setFlash('error', $e->getMessage());
-	            }
-			}
-		}
-
-		$modeloOperacionesCheques = new OperacionesCheques;
-		$modeloOperacionesCheques->init();
+					$modelo->estado = Cheques::TYPE_ACREDITADO;
+	            	if(!$modelo->save())
+	                	throw new Exception("Error al actualizar el estado del cheque", 5);
+				}
+				$transaccion->commit();
+				
+		        $ejecutar = '<script type="text/javascript" language="javascript">
+		        window.open("'.Yii::app()->createUrl("/cheques/imprimirChequesFinanciera", array('idCheques' => $_POST['idCheques'])).'");
+		        </script>';
 		
-		$modelo = new Cheques('search');
-		$modelo->unsetAttributes();
-		
-		$this->render('chequesFinanciera', array('modeloOperacionesCheques' => $modeloOperacionesCheques, 'modelo' => $modelo));
-			
-		
-		/*
-		if ((isset($_POST['procesar'])) && ($_POST['procesar'] == '1')) {
-
+		        Yii::app()->session['ejecutar'] = $ejecutar;
+		        Yii::app()->user->setFlash('success', 'Acreditacion realizada con exito');
+		        $this->redirect(array('chequesFinanciera'));
+            } catch (Exception $e) {
+                $transaction->rollBack();
+                Yii::app()->user->setFlash('error', $e->getMessage());
+            }
 		}
 		else {
 			if(isset(Yii::app()->session["ejecutar"])){
@@ -887,49 +806,23 @@ class ChequesController extends Controller {
 			$modelo->unsetAttributes();
 			
 			$this->render('chequesFinanciera', array('modeloOperacionesCheques' => $modeloOperacionesCheques, 'modelo' => $modelo));
-		}*/
+		}
 	}
 	
 	public function actionCalcularTotal() {
-		/*			
+					
 		$resultado = '';
-		
+	
 		if ((!isset($_GET["fechaPago"])) || (!isset($_GET["clienteId"]) || (!isset($_GET["chequesSeleccionados"]))) ) {
-			echo "0";
+			echo "-10";
 			return;
 		}
 	
 		$modelo = new Cheques();
 		$modelo->fechaPago = $_GET["fechaPago"];
-		$modelo->clienteId = $_GET["clienteId"];*/
-	
-		if ((!isset($_GET["fechaInicio"])) || (!isset($_GET["fechaFinal"]) || (!isset($_GET["chequesSeleccionados"]))) ) {
-			echo "0";
-			return;
-		}
-	
-		$modelo = new Cheques();
-		$modelo->fechaInicio = $_GET["fechaInicio"];
-		$modelo->fechaFinal = $_GET["fechaFinal"];
+		$modelo->clienteId = $_GET["clienteId"];
 	
 		echo $modelo->obtenerTotal(explode(',', $_GET["chequesSeleccionados"]));
-	}
-
-	public function actionBuscarTasa() {
-	
-		if (!isset($_GET["pesificadorId"])) {
-			echo "0";
-			return;
-		}
-
-		$resultado = Pesificadores::model()->findByPk($_GET["pesificadorId"]);
-	
-		if (!$resultado) {
-			echo "0";
-			return;
-		}
-	
-		echo $resultado->tasaDescuento;
 	}
 	
 	public function actionImprimirChequesFinanciera() {
