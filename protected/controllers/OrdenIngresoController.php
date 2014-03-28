@@ -35,7 +35,7 @@ class OrdenIngresoController extends Controller
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','updateOrden','reciboPDF','levantarCheque', "prueba"),
+				'actions'=>array('admin','delete','updateOrden','reciboPDF','levantarCheque', 'createFinancieras'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -79,6 +79,30 @@ class OrdenIngresoController extends Controller
 		}
 
 		$this->render('create',array(
+			'model'=>$model,
+		));
+	}
+
+	public function actionCreateFinancieras()
+	{
+		$model=new OrdenIngreso;
+
+		// Uncomment the following line if AJAX validation is needed
+		// $this->performAjaxValidation($model);
+
+		if(isset($_POST['OrdenIngreso']))
+		{
+			$model->attributes=$_POST['OrdenIngreso'];
+			if($model->save())
+			    Yii::app()->user->setFlash('success','Retiro de Financieras realizado con exito');
+				$model->unsetAttributes();
+				$this->redirect('createFinancieras',array(
+					'model'=>$model,
+					));
+
+		}
+
+		$this->render('createFinancieras',array(
 			'model'=>$model,
 		));
 	}
@@ -191,7 +215,7 @@ class OrdenIngresoController extends Controller
             $id = $_POST["ordenIngresoId"];
             $ordenIngreso = $this->loadModel($id);
             try {
-                if ($_POST["boton"] == "Acreditar Fondos") {
+                if ($_POST["boton"] == "Procesar") {
                     if($ordenIngreso->tipo == OrdenIngreso::TIPO_DEPOSITO){
                     	$connection = Yii::app()->db;
             			$transaction = $connection->beginTransaction();
@@ -200,21 +224,35 @@ class OrdenIngresoController extends Controller
 	                                            (tipoMov, conceptoId, clienteId, productoId, descripcion, monto, fecha, origen, identificadorOrigen, userStamp, timeStamp, sucursalId, saldoAcumulado)
 	                                            VALUES (:tipoMov, :conceptoId, :clienteId, :productoId, :descripcion, :monto, :fecha, :origen, :identificadorOrigen, :userStamp, :timeStamp, :sucursalId, :saldoAcumulado)";
 
-	                    $tipoMov = CtacteClientes::TYPE_CREDITO; //credito
+	                    
+	                    
 	                    $conceptoId = 9; //Ingreso de fondos
-	                    $descripcion = "Deposito Num.".$id;
+	                    
 	                    $fecha = Date("Y-m-d");
-	                    $operacionRelacionada = "Acreditacion de Fondos";
+	                    
 	                    $origen="OrdenIngreso";
 	                    $identificadorOrigen=$ordenIngreso->id;
 
 	                    $ctacteCliente = new CtacteClientes();
 	                    $ctacteCliente->clienteId=$ordenIngreso->clienteId;
 	                    $saldoAcumuladoActual = $ctacteCliente->getSaldoAcumuladoActual();
-	                    $saldoAcumulado=$saldoAcumuladoActual+$ordenIngreso->monto;
+	                    
+	                    
+	                    if ($ordenIngreso->cliente->tipoCliente==Clientes::TYPE_FINANCIERA){
+							$tipoMov = CtacteClientes::TYPE_DEBITO; 
+							$descripcion = "Retiro de Fondos de Financiera Num.".$id;
+							$operacionRelacionada = "Retiro de Fondos Financieras";
+							$saldoAcumulado=$saldoAcumuladoActual-$ordenIngreso->monto;
+						}else{
+							$tipoMov = CtacteClientes::TYPE_DEBITO; 
+							$descripcion = "Deposito Num.".$id;
+							$operacionRelacionada = "Acreditacion de Fondos";
+							$saldoAcumulado=$saldoAcumuladoActual+$ordenIngreso->monto;
+						}
 	                    $userStamp = Yii::app()->user->model->username;
 	                    $timeStamp = date("Y-m-d h:m:s");
 	                    $sucursalId = Yii::app()->user->model->sucursalId;
+
 	                    $command = $connection->createCommand($sql);
 						$command->bindValue(":tipoMov", $tipoMov, PDO::PARAM_STR);
 	                    $command->bindValue(":conceptoId", $conceptoId, PDO::PARAM_STR);
@@ -235,9 +273,14 @@ class OrdenIngresoController extends Controller
 						$flujoFondos->cuentaId='6'; // cajade oepracion
 						$flujoFondos->conceptoId='9'; // concepto para ingreso de fondos
 						$flujoFondos->descripcion='Ingreso de Fondos Orden Num'.$id;
-						$flujoFondos->tipoFlujoFondos=FlujoFondos::TYPE_CREDITO;
+						//aca si es una financiera, es un retiro de fondos que ingresa en la caja
+						//de operaciones y sale de la cuenta corriente de la financiera, entonces
+						//lo convertimos en debito
 						$flujoFondos->monto=$ordenIngreso->monto;
+						$flujoFondos->tipoFlujoFondos=FlujoFondos::TYPE_CREDITO;
 						$flujoFondos->saldoAcumulado = $flujoFondos->getSaldoAcumuladoActual() + $flujoFondos->monto;
+							
+						
 						$flujoFondos->fecha=Date("d/m/Y");
 						$flujoFondos->origen='ordenIngreso';
 						$flujoFondos->identificadorOrigen=$id;
@@ -265,6 +308,7 @@ class OrdenIngresoController extends Controller
 							// Cheques::model()->updateByPk($ordenIngreso->identificadorOrigen, array("estado"=>Cheques::TYPE_ACREDITADO));
                 		}
                 	}
+
 	                $this->actionFinal($id);
                 } else {
                     if ($_POST["boton"] == "Anular") {
@@ -303,7 +347,7 @@ class OrdenIngresoController extends Controller
         $html = 'Fecha: ' . $model->fecha . '
                        <br/>
                        <br/>
-                       Cliente: ' . $model->cliente->razonSocial . '
+                       Cliente/Financiera: ' . $model->cliente->razonSocial . '
                        <br/>
                        <br/>
                        Orden de Ingreso Nro: ' . $model->id . '

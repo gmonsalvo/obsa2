@@ -1,8 +1,4 @@
 <?php
-$this->breadcrumbs = array(
-    'Ordenes Pagos' => array('/ordenesPago/admin'),
-    'Crear',
-);
 
 $this->menu = array(
     array('label' => 'Listar OrdenesPago', 'url' => array('/ordenesPago/admin')),
@@ -53,7 +49,6 @@ $this->menu = array(
                 $(".oculto").css("display","block");
                 $("#saldoCtaCte").val(datos.saldo);
                 $("#montoPermitidoDescubierto").val(datos.montoPermitidoDescubierto);
-
                 $("#botonSubmit").removeAttr("disabled");
             }
             });
@@ -65,7 +60,7 @@ $this->menu = array(
     .oculto{display: none}
 </style>
 
-<h1>Retiro de Fondos</h1>
+<h1>Deposito a Financieras</h1>
 
 <div class="form">
 
@@ -74,7 +69,7 @@ $this->menu = array(
         'id' => 'ordenes-pago-form',
         'enableAjaxValidation' => false,
         'method' => 'post',
-        'action' => Yii::app()->createUrl("/ordenesPago/retirarFondos"),
+        'action' => Yii::app()->createUrl("/ordenesPago/retirarFondosFinancieras"),
         'htmlOptions' => array('onSubmit' => 'return validate(this)')
             ));
     ?>
@@ -120,7 +115,7 @@ $this->menu = array(
             'model' => $model,
             'attribute' => 'clienteId', //the FK field (from CJuiInputWidget)
             // controller method to return the autoComplete data (from CJuiAutoComplete)
-            'sourceUrl' => Yii::app()->createUrl('/clientes/buscarRazonSocial',array("tipo[0]"=>  Clientes::TYPE_INVERSOR,"tipo[1]"=>Clientes::TYPE_TOMADOR_E_INVERSOR)),
+            'sourceUrl' => Yii::app()->createUrl('/clientes/buscarRazonSocial',array("tipo[3]"=>Clientes::TYPE_FINANCIERA)),
             // defaults to false.  set 'true' to display the FK field with 'readonly' attribute.
             'showFKField' => false,
             // display size of the FK field.  only matters if not hidden.  defaults to 10
@@ -141,7 +136,7 @@ $this->menu = array(
             ),
         ));
         echo $form->error($model, 'clienteId');
-        echo CHtml::ajaxButton('Mostrar informacion', CHtml::normalizeUrl(array('clientes/getSaldos', 'render' => false)), array(
+        /*echo CHtml::ajaxButton('Mostrar informacion', CHtml::normalizeUrl(array('clientes/getSaldos', 'render' => false)), array(
             'type' => 'POST',
             'data' => array('id' => 'js:$("#OrdenesPago_clienteId").val()',
             ),
@@ -169,6 +164,7 @@ $this->menu = array(
                             }
              }',
         ))
+        */
         ?>
     </div>
 
@@ -178,17 +174,7 @@ $this->menu = array(
         <?php echo $form->error($model, 'descripcion'); ?>
     </div>
 
-
-    <div class="row oculto">
-        <?php echo CHtml::label('Saldo en cta cte', 'saldoCtaCte'); ?>
-        <?php echo CHtml::textField('saldoCtaCte', 0, array('id' => 'saldoCtaCte', 'size' => 15, 'maxlength' => 15, 'readonly' => 'readonly')); ?>
-    </div>
-   <div class="row oculto">
-        <?php echo CHtml::label('Monto Permitido Descubierto', 'montoPermitidoDescubierto'); ?>
-        <?php echo CHtml::textField('montoPermitidoDescubierto', 0, array('id' => 'montoPermitidoDescubierto', 'size' => 15, 'maxlength' => 15, 'readonly' => 'readonly')); ?>
-    </div>
-
-    <div class="row">
+     <div class="row">
         <?php echo $form->labelEx($model, 'monto'); ?>
         <?php
             $this->widget("FormatCurrency",

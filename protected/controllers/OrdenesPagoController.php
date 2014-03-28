@@ -29,7 +29,7 @@ class OrdenesPagoController extends Controller {
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'admin', 'getDetalles', 'updateOrden', 'reciboPDF', 'retirarFondos', 'final'),
+                'actions' => array('create', 'update', 'admin', 'getDetalles', 'updateOrden', 'reciboPDF', 'retirarFondos', 'final','retirarFondosFinancieras'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -403,31 +403,7 @@ class OrdenesPagoController extends Controller {
 
                         Yii::app()->session['ejecutar'] = $ejecutar;
                         Yii::app()->user->setFlash('success', 'Orden de Pago Procesada con exito');
-                        ##signica que la orden de pago fue parcial, entonces pongo en ctacte del cliente lo que falte
-                        // if($montoAcreditar!=0){
-                        //     $tipoMov = CtacteClientes::TYPE_CREDITO; //credito
-                        //     $conceptoId = 9; //Ingreso de fondos
-                        //     $ctacteClientes = new CtacteClientes();
-                        //     $ctacteClientes->tipoMov = $tipoMov;
-                        //     $ctacteClientes->conceptoId = $conceptoId;
-                        //     $ctacteClientes->clienteId = $ordenesPago->clienteId;
-                        //     $ctacteClientes->productoId = 1;
-                        //     $ctacteClientes->descripcion = "Ingreso de fondos por orden de Compra";
-                        //     $ctacteClientes->monto = $montoAcreditar;
-
-                        //     $ctacteClientes->saldoAcumulado=$ctacteClientes->getSaldoAcumuladoActual()+$ctacteClientes->monto;
-                        //     $ctacteClientes->fecha = date("d/m/Y");
-                        //     $ctacteClientes->origen = "OrdenesPago";
-                        //     $ctacteClientes->identificadorOrigen = $ordenesPago->id;
-                        //     if (!$ctacteClientes->save()) {
-                        //         $transaction->rollBack();
-                        //         Yii::app()->user->setFlash('error', 'Error al efectuar la Orden de pago2');
-                        //         $this->actionAdmin();
-                        //     }
-                        // }
-
-                        // $ordenesPago->estado = OrdenesPago::ESTADO_PAGADA;
-                        // $ordenesPago->save();
+                        
 
                     } else {
                         if ($ordenesPago->origenOperacion == OrdenesPago::ORIGEN_OPERACION_RETIRO_FONDOS) {
@@ -451,7 +427,7 @@ class OrdenesPagoController extends Controller {
 
 
                             //hacemos el descuento en la cuenta origen
-
+                            //para financieras tenemos que acreditar
 
                             $sql = "INSERT INTO ctacteClientes
                                             (tipoMov, conceptoId, clienteId, productoId, descripcion, origen, identificadorOrigen, monto, fecha, userStamp, timeStamp, sucursalId, saldoAcumulado)
@@ -459,7 +435,19 @@ class OrdenesPagoController extends Controller {
 
 
                             $command = $connection->createCommand($sql);
-                            $tipoMov = CtacteClientes::TYPE_DEBITO;
+                            $ctacteCliente = new CtacteClientes();
+                            $ctacteCliente->clienteId=$ordenesPago->clienteId;
+                            $saldoAcumuladoActual = $ctacteCliente->getSaldoAcumuladoActual();
+                            
+                            if ($ordenesPago->cliente->tipoCliente==Clientes::TYPE_FINANCIERA)
+                               {
+                                $tipoMov = CtacteClientes::TYPE_CREDITO;
+                                $saldoAcumulado=$saldoAcumuladoActual+$ordenesPago->monto;
+                             }else{
+                                $tipoMov = CtacteClientes::TYPE_DEBITO;    
+                                $saldoAcumulado=$saldoAcumuladoActual-$ordenesPago->monto;
+                            }
+                            
                             $conceptoId = 16;
                             $descripcion = $ordenesPago->descripcion;
                             $origen="OrdenesPago";
@@ -469,10 +457,6 @@ class OrdenesPagoController extends Controller {
                             $userStamp = Yii::app()->user->model->username;
                             $timeStamp = Date("Y-m-d h:m:s");
                             $sucursalId = Yii::app()->user->model->sucursalId;
-                            $ctacteCliente = new CtacteClientes();
-                            $ctacteCliente->clienteId=$ordenesPago->clienteId;
-                            $saldoAcumuladoActual = $ctacteCliente->getSaldoAcumuladoActual();
-                            $saldoAcumulado=$saldoAcumuladoActual-$ordenesPago->monto;
 
                             $clienteId = $ordenesPago->clienteId;
 //
@@ -653,6 +637,48 @@ class OrdenesPagoController extends Controller {
             'model' => $model, 'cliente' => new Clientes()
         ));
     }
+
+        public function actionRetirarFondosFinancieras() {
+
+        $model = new OrdenesPago;
+
+        // Uncomment the following line if AJAX validation is needed
+        // $this->performAjaxValidation($model);
+
+        if (isset($_POST['OrdenesPago'])) {
+            $model->attributes = $_POST['OrdenesPago'];
+            $model->estado = OrdenesPago::ESTADO_PENDIENTE;
+            $model->origenOperacion = OrdenesPago::ORIGEN_OPERACION_RETIRO_FONDOS;
+            $model->descripcion = "Deposito en Financiera: ".$model->descripcion;
+            //$model->monedaId = 2; //pesos
+            //$model->tasaCambio = Monedas::model()->findByPk($model->monedaId)->tasaCambioVenta;
+            $model->fecha = Utilities::MysqlDateFormat($model->fecha);
+            $connection = Yii::app()->db;
+            $transaction = $connection->beginTransaction();
+
+            try {
+                if ($model->save()) {
+                    $sql = "INSERT INTO formaPagoOrden (ordenPagoId, monto, tipoFormaPago, formaPagoId) values (:ordenPagoId, :monto, :tipoFormaPago, :formaPagoId)";
+                    $command = $connection->createCommand($sql);
+                    $command->bindValue(":ordenPagoId", $model->id, PDO::PARAM_STR);
+                    $command->bindValue(":monto", $model->monto, PDO::PARAM_STR);
+                    $command->bindValue(":tipoFormaPago", FormaPagoOrden::TIPO_EFECTIVO, PDO::PARAM_STR);
+                    $command->bindValue(":formaPagoId", 0, PDO::PARAM_STR);
+                    $command->execute();
+
+                    $transaction->commit();
+                    Yii::app()->user->setFlash('success', 'El deposito a financieras fue realizado con exito');
+                }
+            } catch (Exception $e) {
+                $transaction->rollback();
+            }
+        }
+        $model->unsetAttributes();
+        $this->render('retiroFondosFinancieras', array(
+            'model' => $model, 'cliente' => new Clientes()
+        ));
+    }
+
 
     public function actionFinal($id) {
         $model = $this->loadModel($id);

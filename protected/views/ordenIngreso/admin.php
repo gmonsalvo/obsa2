@@ -65,7 +65,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		'fecha',
         array(
             'name' => 'clienteId',
-            'header' => 'Cliente',
+            'header' => 'Cliente/Financiera',
             'value' => '$data->cliente->razonSocial',
         ),
 		array(
@@ -88,7 +88,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 <table>
     <tr>
         <td>
-            <?php echo CHtml::submitButton("Acreditar Fondos",array("id"=>"botonPagar","name"=>"boton","disabled"=>"disabled"))?>
+            <?php echo CHtml::submitButton("Procesar",array("id"=>"botonPagar","name"=>"boton","disabled"=>"disabled"))?>
             <?php echo CHtml::submitButton("Anular",array("id"=>"botonAnular","name"=>"boton","disabled"=>"disabled"))?>
         </td>
     </tr>
