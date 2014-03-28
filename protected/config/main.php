@@ -83,9 +83,17 @@ return array(
             'class' => 'CLogRouter',
             'routes' => array(
                 array(
+                    'class' => 'CFileLogRoute',
+                    'levels'=>'trace, info, error, warning',
+                    'categories'=>'system.*',
+                    'logPath'=> '/var/www/obsa2/',
+                    'logFile'=>'obsa2.log',
+                    //'filter' => 'CLogFilter'
+                ),
+                 array(
                     'class' => 'CWebLogRoute',
                     'levels'=>'trace, info, error, warning',
-                    'categories'=>'system.db.*',
+                    'categories'=>'system.*',
                     'showInFireBug'=>false //true/falsefirebug only - turn off otherwise
                     //'filter' => 'CLogFilter'
                 ),
