@@ -7,8 +7,6 @@
 return array(
     'basePath' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..',
     'name' => 'Gestion de Operatorias',
-    //'sourceLanguage'=>'es_ar',
-    // preloading 'log' component
     // autoloading model and component classes
     'import' => array(
         'application.models.*',
@@ -32,10 +30,11 @@ return array(
     'language' => 'es', // Este es el lenguaje en el que querés que muestre las cosas
     'sourceLanguage' => 'en', // este es el lenguaje por default de los archivos
     //'preload'=>array('log'),
+    // preloading 'log' component
+    'preload'=>array('log'),
     // application components
-       'preload'=>array('log'),
     'components' => array(
-       
+   
         'session' => array(
             'timeout' => 300,
             'sessionName' => 'CapAdvSession'
@@ -66,13 +65,13 @@ return array(
 // uncomment the following to use a MySQL database
 
         'db' => array(
-            'connectionString' => 'mysql:host=127.0.0.1;port=3307;dbname=obsa2',
+            'connectionString' => 'mysql:host=127.0.0.1;port=3306;dbname=obsa2',
             'emulatePrepare' => true,
             'username' => 'root',
             'password' => 'eLaStIx.2oo7',
             //'password' => 'montreal',
             'charset' => 'utf8',
-             'enableProfiling' => true,
+            'enableProfiling' => true,
             'enableParamLogging' => true,
         ),
         'errorHandler' => array(
@@ -83,12 +82,21 @@ return array(
             'class' => 'CLogRouter',
             'routes' => array(
                 array(
-                    'class' => 'CWebLogRoute',
+                    'class' => 'CFileLogRoute',
                     'levels'=>'trace, info, error, warning',
-                    'categories'=>'system.db.*',
-                    'showInFireBug'=>false //true/falsefirebug only - turn off otherwise
+                    'categories'=>'system.*',
+                    'logPath'=> '/var/www/obsa2/',
+                    'logFile'=>'obsa2.log',
                     //'filter' => 'CLogFilter'
                 ),
+                /* array(
+                    'class' => 'CWebLogRoute',
+                    'levels'=>'trace, info, error, warning',
+                    'categories'=>'system.*',
+                    'showInFireBug'=>false,  //true/falsefirebug only - turn off otherwise
+                    //'filter' => 'CLogFilter'
+                ),*/
+                array('class'=>'ext.yii-debug-toolbar.YiiDebugToolbarRoute',),
                 // uncomment the following to show log messages on web pages
             ),
         ),
