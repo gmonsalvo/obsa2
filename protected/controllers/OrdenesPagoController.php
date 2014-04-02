@@ -494,14 +494,16 @@ class OrdenesPagoController extends Controller {
                     //$this->redirect(array('ordenesPago/admin'));
                 } else {
                     if ($_POST["boton"] == "Anular") {
-                        $ordenesPago->estado = OrdenesPago::ESTADO_ANULADA;
-                        $ordenesPago->save();
+                            $ordenesPago->estado = OrdenesPago::ESTADO_ANULADA;
+                            $ordenesPago->save();
 
-                        $operacionCheque = $ordenesPago->operacionesChequeOrdenPago->operacionesCheques;
-                        $operacionCheque->estado = OperacionesCheques::ESTADO_A_PAGAR;
+                            if ($ordenesPago->origenOperacion!=OrdenesPago::ORIGEN_OPERACION_RETIRO_FONDOS) {
+                                $operacionCheque = $ordenesPago->operacionesChequeOrdenPago->operacionesCheques;
+                                $operacionCheque->estado = OperacionesCheques::ESTADO_A_PAGAR;
 
-                        if(!$operacionCheque->save())
-                            throw new Exception(var_dump($operacionCheque->getErrors()), 1);
+                                if(!$operacionCheque->save())
+                                    throw new Exception(var_dump($operacionCheque->getErrors()), 1);
+                             }   
 
 
                         $formaPagoOrden = new FormaPagoOrden();
