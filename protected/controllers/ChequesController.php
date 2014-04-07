@@ -709,10 +709,7 @@ class ChequesController extends Controller {
 	}
 	
 	public function actionChequesFinanciera() {
-<<<<<<< HEAD
-=======
-
-		/*
+        /*
 		array(4) {
 			["Cheques"]=> array(9) {
 				["accion"]=> string(1) "1" ["pesificadorId"]=> string(1) "3" ["tasaPesificacion"]=> string(4) "1.20" ["netoPesificacion"]=> string(9) "250293.00" ["financieraId"]=> string(4) "1268" ["costoFinanciera"]=> string(0) "" ["inversorId"]=> string(4) "1090" ["porcentajeReconocimiento"]=> string(0) "" ["netoInversor"]=> string(0) "" 
@@ -720,7 +717,6 @@ class ChequesController extends Controller {
 			["idCheques_all"]=> string(1) "1" 
 			["idCheques"]=> array(2) { [0]=> string(1) "1" [1]=> string(1) "2" } ["montoTotal"]=> string(12) "$ 253.333,00" 
 		}*/	
->>>>>>> 89c53bd8d1eb5a7d67ba4f3fa131ce06d8e42ff0
 		
 		if ((isset($_POST['procesar'])) && ($_POST['procesar'] == '1')) {
 
