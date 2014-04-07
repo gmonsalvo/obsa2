@@ -27,9 +27,9 @@ class OperacionesCheques extends CustomCActiveRecord {
     const ESTADO_A_PAGAR=2;
     const ESTADO_ANULADO=3;
 
-    private $montoPesificacion=0;
-    private $montoIntereses=0;
-    private $montoNominalTotal=0;
+    public $montoPesificacion=0;
+    public $montoIntereses=0;
+    public $montoNominalTotal=0;
     /**
      * Returns the static model of the specified AR class.
      * @return OperacionesCheques the static model class
@@ -150,8 +150,8 @@ class OperacionesCheques extends CustomCActiveRecord {
         foreach ($tmpCheques as $tmpCheque) {
             $this->montoNetoTotal+=$tmpCheque->montoNeto;
             $this->montoNominalTotal+=$tmpCheque->montoOrigen;
-            $this->montoPesificacion+=$tmpCheque->descuentoPesific;
-            $this->montoIntereses+=$tmpCheque->descuentoTasa;
+            $this->montoPesificacion+= ($tmpCheque->descuentoPesific!=0?$tmpCheque->descuentoPesific:$tmpCheque->gastos );
+            $this->montoIntereses+= ($tmpCheque->descuentoTasa!=0?$tmpCheque->descuentoTasa:$tmpCheque->intereses);
         }
     }
 
