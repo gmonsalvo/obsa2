@@ -239,6 +239,19 @@ class TmpCheques extends CustomCActiveRecord {
         return $options[$this->$type];
     }
 
+    public function calcularMontoNetoXFinanciera($montoOrigen, $fechaPago, $tasaDescuento, $intereses, $gastos, $fechaOperacion) {    
+
+        Yii::trace('LOG - calcularMontoNetoXFinanciera' , 'system.CModule');
+
+        $resultado = $montoOrigen - $this->intereses - $this->gastos;
+        $estado = self::TYPE_EN_CARTERA_SIN_COLOCAR;
+        $datos = array("montoNeto" => Utilities::MoneyFormat($resultado) ,
+                        "descuentoTasa" => Utilities::MoneyFormat($this->intereses) , 
+                        "descuentoPesific" => Utilities::MoneyFormat($this->gastos), 
+                        "estado" =>$estado);
+        return $datos;
+    }
+
     public function calcularMontoNeto($montoOrigen, $fechaPago, $tasaDescuento, $clearing, $pesificacion, $fechaOperacion) {
         $dFecIni = Date("d-m-Y");
         $futureDate=strtotime(date("Y-m-d", mktime()) . " + 365 day");

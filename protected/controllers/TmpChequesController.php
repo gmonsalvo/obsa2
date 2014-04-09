@@ -71,7 +71,12 @@ class TmpChequesController extends Controller {
             if(!isset($_POST['TmpCheques']['tasaDescuento']))
               $model->tasaDescuento = 0;
             
-            $resultado = $model->calcularMontoNeto($model->montoOrigen, $model->fechaPago, $model->tasaDescuento, $model->clearing, $model->pesificacion, $_POST["fechaOperacion"]);  
+            if ($model->gastos>0 || $model->intereses>0) {
+              $resultado = $model->calcularMontoNetoXFinanciera($model->montoOrigen, $model->fechaPago, $model->tasaDescuento, $model->intereses, $model->gastos, $_POST["fechaOperacion"]);    
+            } else {
+              $resultado = $model->calcularMontoNeto($model->montoOrigen, $model->fechaPago, $model->tasaDescuento, $model->clearing, $model->pesificacion, $_POST["fechaOperacion"]);    
+            }
+            
               
             if ($resultado["estado"]==TmpCheques::TYPE_INDEFINIDO){
               $model->addError("estado",$resultado["error"]);
@@ -104,7 +109,7 @@ class TmpChequesController extends Controller {
               } else
                   echo CJSON::encode(array("errores"=>CHtml::errorSummary($model)));
             }
-        }
+        } 
     }
 
     /**

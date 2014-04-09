@@ -150,8 +150,12 @@ class OperacionesCheques extends CustomCActiveRecord {
         foreach ($tmpCheques as $tmpCheque) {
             $this->montoNetoTotal+=$tmpCheque->montoNeto;
             $this->montoNominalTotal+=$tmpCheque->montoOrigen;
-            $this->montoPesificacion+= ($tmpCheque->descuentoPesific!=0?$tmpCheque->descuentoPesific:$tmpCheque->gastos );
-            $this->montoIntereses+= ($tmpCheque->descuentoTasa!=0?$tmpCheque->descuentoTasa:$tmpCheque->intereses);
+            $this->montoPesificacion+= ($tmpCheque->gastos!=0?$tmpCheque->gastos:$tmpCheque->descuentoPesific);
+            $this->montoIntereses+= ($tmpCheque->intereses!=0?$tmpCheque->intereses:$tmpCheque->descuentoTasa);
+            Yii::trace('OPERACIONES CHEQUES - INIT - gastos' . $tmpCheque->gastos   , 'system.CModule');
+            Yii::trace('OPERACIONES CHEQUES - INIT - intereses' . $tmpCheque->intereses   , 'system.CModule');
+            Yii::trace('OPERACIONES CHEQUES - INIT - descuentoPesific' . $tmpCheque->descuentoPesific   , 'system.CModule');
+            Yii::trace('OPERACIONES CHEQUES - INIT - descuentoTasa' . $tmpCheque->descuentoTasa   , 'system.CModule');
         }
     }
 
