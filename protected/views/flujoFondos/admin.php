@@ -1,9 +1,10 @@
 <?php
 
+/*
 $this->menu=array(
 	array('label'=>'Movimiento Manual', 'url'=>array('create')),
 );
-
+*/
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
 	$('.search-form').toggle();
